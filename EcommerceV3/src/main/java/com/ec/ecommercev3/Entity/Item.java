@@ -1,5 +1,6 @@
 package com.ec.ecommercev3.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
@@ -15,8 +16,9 @@ import lombok.*;
 public class Item extends DomainEntity {
 
     @ManyToOne()
-    @JsonIgnore// evita loop infinito
+//    @JsonIgnore// evita loop infinito
     @JoinColumn(name = "cart")
+    @JsonBackReference
     private Cart cart;
 
     @ManyToOne()

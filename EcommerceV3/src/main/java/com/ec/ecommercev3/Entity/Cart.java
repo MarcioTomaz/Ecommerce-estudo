@@ -1,8 +1,10 @@
 package com.ec.ecommercev3.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
 
 import java.util.List;
 
@@ -15,11 +17,12 @@ import java.util.List;
 public class Cart extends DomainEntity {
 
     @ManyToOne(optional = true)
-    @JsonIgnore// evita loop infinito
+//    @JsonIgnore// evita loop infinito
+    @JsonBackReference
     @JoinColumn(name = "userPerson")
     private UserPerson userPerson;
 
-    @OneToMany(mappedBy = "cart")
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> items;
 
     @Column

@@ -27,6 +27,8 @@ public class CartService {
 
         Cart cart = modelMapper.map(dto, Cart.class);
 
+        //calcular o total do carrinho aqui depois
+
         try {
             cartRepository.save(cart);
         }catch (Exception e){
