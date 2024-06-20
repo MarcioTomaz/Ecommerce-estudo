@@ -1,9 +1,6 @@
 package com.ec.ecommercev3.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,18 +8,17 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table( name= "_item")
+@Table(name = "_item")
 @Entity
-public class Item extends DomainEntity {
+public class Item extends DomainEntity{
 
-    @ManyToOne()
-//    @JsonIgnore// evita loop infinito
-    @JoinColumn(name = "cart")
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
     @JsonBackReference
     private Cart cart;
 
-    @ManyToOne()
-    @JoinColumn(name = "product")
+    @ManyToOne
+    @JoinColumn(name = "product_id")
     private Product product;
 
     @Column
@@ -30,5 +26,4 @@ public class Item extends DomainEntity {
 
     @Column
     private Double total_value;
-
 }

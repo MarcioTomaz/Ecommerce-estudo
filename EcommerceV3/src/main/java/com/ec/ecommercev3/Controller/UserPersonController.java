@@ -31,7 +31,7 @@ public class UserPersonController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<UserPerson> create(@Valid @RequestBody UserPersonInsertDTO userPersonInsertDTO){
+    public ResponseEntity<UserPerson> create(@RequestBody UserPersonInsertDTO userPersonInsertDTO){
 
         UserPerson result = userPersonService.create(userPersonInsertDTO);
 
