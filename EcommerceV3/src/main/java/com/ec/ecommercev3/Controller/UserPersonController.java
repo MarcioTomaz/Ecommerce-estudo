@@ -1,8 +1,9 @@
 package com.ec.ecommercev3.Controller;
 
-import com.ec.ecommercev3.DTO.UserPersonEditDTO;
-import com.ec.ecommercev3.DTO.UserPersonInsertDTO;
-import com.ec.ecommercev3.DTO.UserPersonUpdatePasswordDTO;
+import com.ec.ecommercev3.DTO.UserPerson.UserPersonEditDTO;
+import com.ec.ecommercev3.DTO.UserPerson.UserPersonInsertDTO;
+import com.ec.ecommercev3.DTO.UserPerson.UserPersonLoginDTO;
+import com.ec.ecommercev3.DTO.UserPerson.UserPersonUpdatePasswordDTO;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.UserPersonService;
 import jakarta.validation.Valid;
@@ -20,6 +21,13 @@ public class UserPersonController {
 
     @Autowired
     private UserPersonService userPersonService;
+    
+    @PostMapping("/login")
+    public ResponseEntity<UserPersonLoginDTO> login(@RequestBody UserPersonLoginDTO userPersonLoginDTO){
+
+        UserPersonLoginDTO result = userPersonService.login(userPersonLoginDTO);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 
 
     @PutMapping("/update/password")
@@ -40,7 +48,7 @@ public class UserPersonController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<UserPerson> edit(@PathVariable Long id,
-                                           @RequestBody UserPersonEditDTO userPersonEditDTO) {
+                                           @RequestBody @Valid UserPersonEditDTO userPersonEditDTO) {
 
         UserPerson userPersonEdit = userPersonService.update(id, userPersonEditDTO);
 

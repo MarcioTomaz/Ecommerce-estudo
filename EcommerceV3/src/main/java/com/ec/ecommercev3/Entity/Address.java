@@ -1,6 +1,6 @@
 package com.ec.ecommercev3.Entity;
 
-import com.ec.ecommercev3.DTO.AddressDTO;
+import com.ec.ecommercev3.DTO.Address.AddressDTO;
 import com.ec.ecommercev3.Entity.Enums.AddressType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

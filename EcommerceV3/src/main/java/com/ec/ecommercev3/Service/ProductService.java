@@ -1,11 +1,9 @@
 package com.ec.ecommercev3.Service;
 
-import com.ec.ecommercev3.DTO.*;
-import com.ec.ecommercev3.Entity.Address;
-import com.ec.ecommercev3.Entity.Person;
+import com.ec.ecommercev3.DTO.Product.ProductEditDTO;
+import com.ec.ecommercev3.DTO.Product.ProductEditStockDTO;
+import com.ec.ecommercev3.DTO.Product.ProductInsertDTO;
 import com.ec.ecommercev3.Entity.Product;
-import com.ec.ecommercev3.Repository.AddressRepository;
-import com.ec.ecommercev3.Repository.PersonRepository;
 import com.ec.ecommercev3.Repository.ProductRepository;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
@@ -14,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class ProductService {

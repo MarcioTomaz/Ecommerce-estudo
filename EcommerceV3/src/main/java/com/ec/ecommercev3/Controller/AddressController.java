@@ -1,9 +1,8 @@
 package com.ec.ecommercev3.Controller;
 
-import com.ec.ecommercev3.DTO.AddressDTO;
-import com.ec.ecommercev3.DTO.AddressEditDTO;
+import com.ec.ecommercev3.DTO.Address.AddressDTO;
+import com.ec.ecommercev3.DTO.Address.AddressEditDTO;
 import com.ec.ecommercev3.Entity.Address;
-import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.AddressService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

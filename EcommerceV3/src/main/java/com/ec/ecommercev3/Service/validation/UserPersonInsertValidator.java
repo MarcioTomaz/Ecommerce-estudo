@@ -1,9 +1,10 @@
 package com.ec.ecommercev3.Service.validation;
 
-import com.ec.ecommercev3.DTO.UserPersonInsertDTO;
+import com.ec.ecommercev3.DTO.UserPerson.UserPersonInsertDTO;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Exception.FieldMessage;
 import com.ec.ecommercev3.Repository.UserPersonRepository;
+import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +26,7 @@ public class UserPersonInsertValidator implements ConstraintValidator<UserPerson
 
         List<FieldMessage> list = new ArrayList<>();
 
-        // Coloque aqui seus testes de validação, acrescentando objetos FieldMessage à lista
-
-        UserPerson user = repository.findByEmail(dto.getEmail());
+        UserPerson user = repository.findByEmail(dto.getEmail()).orElseThrow(() -> new ResourceNotFoundException("Email não encontrado!"));
 
         if (user != null) {
             list.add(new FieldMessage("email", "Email já cadastrado!"));

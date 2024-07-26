@@ -1,4 +1,4 @@
-package com.ec.ecommercev3.DTO;
+package com.ec.ecommercev3.DTO.Product;
 
 import com.ec.ecommercev3.Entity.DomainEntity;
 

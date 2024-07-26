@@ -1,7 +1,7 @@
 package com.ec.ecommercev3.Service;
 
-import com.ec.ecommercev3.DTO.AddressDTO;
-import com.ec.ecommercev3.DTO.AddressEditDTO;
+import com.ec.ecommercev3.DTO.Address.AddressDTO;
+import com.ec.ecommercev3.DTO.Address.AddressEditDTO;
 import com.ec.ecommercev3.Entity.Address;
 import com.ec.ecommercev3.Entity.Person;
 import com.ec.ecommercev3.Repository.AddressRepository;

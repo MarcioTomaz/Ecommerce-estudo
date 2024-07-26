@@ -1,4 +1,4 @@
-package com.ec.ecommercev3.DTO;
+package com.ec.ecommercev3.DTO.Address;
 
 import com.ec.ecommercev3.Entity.Enums.AddressType;
 import com.ec.ecommercev3.Entity.Person;

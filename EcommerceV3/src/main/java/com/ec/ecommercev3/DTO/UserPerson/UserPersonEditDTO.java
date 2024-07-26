@@ -1,5 +1,6 @@
-package com.ec.ecommercev3.DTO;
+package com.ec.ecommercev3.DTO.UserPerson;
 
+import com.ec.ecommercev3.DTO.PersonDTO;
 import com.ec.ecommercev3.Entity.Enums.UserType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

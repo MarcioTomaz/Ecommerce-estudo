@@ -1,7 +1,7 @@
 package com.ec.ecommercev3.Entity;
 
-import com.ec.ecommercev3.DTO.UserPersonEditDTO;
-import com.ec.ecommercev3.DTO.UserPersonInsertDTO;
+import com.ec.ecommercev3.DTO.UserPerson.UserPersonEditDTO;
+import com.ec.ecommercev3.DTO.UserPerson.UserPersonInsertDTO;
 import com.ec.ecommercev3.Entity.Enums.UserType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
