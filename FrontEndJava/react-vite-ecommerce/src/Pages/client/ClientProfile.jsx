@@ -1,51 +1,69 @@
-import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {Anchor, Button, Group, TextInput} from "@mantine/core";
-import {useForm} from "@mantine/form";
+import React, {useEffect, useState} from 'react';
+import axios from 'axios';
+import {Container, Title, Text, Loader, Alert, Button} from '@mantine/core';
+import {API_URL} from "../../hooks/api.jsx";
+import {useNavigate} from "react-router-dom";
 
 const ClientProfile = () => {
+    const [userId, setUserId] = useState(null);
+    const [userData, setUserData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const form = useForm({
-        mode: 'uncontrolled',
-        initialValues: {
-            email: '',
-            password: ''
-        },
+    const navigate = useNavigate();
 
-        validate: {
-            email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-            password: (value) => (value.length > 3 ? null : 'Invalid password'),
-        },
-    });
+    useEffect(() => {
+        // Recupera o ID do usuário do localStorage
+        const storedUser = localStorage.getItem('userLogin');
+        if (storedUser) {
+            const parsedValue = JSON.parse(storedUser);
+            const userID = parsedValue.id;
+            if (userID) {
+                setUserId(userID);
+            }
+        }
+    }, []);
 
-    function deleteAccount() {
+    useEffect(() => {
+        if (userId) {
+            setIsLoading(true);
+            axios.get(`${API_URL}/userPerson/read/${userId}`)
+                .then(response => {
+                    setUserData(response.data);
+                    setIsLoading(false);
+                })
+                .catch(error => {
+                    setError(error);
+                    setIsLoading(false);
+                });
+        }
+    }, [userId]);
 
+    const changePage = (page) =>{
+        navigate(`${page}`);
     }
 
+    if (isLoading) return <Loader/>;
+
+    if (error) return <Alert title="Erro" color="red">Erro ao carregar os dados: {error.message}</Alert>;
+    ''
     return (
-        <>
-            <section className=" mb-5 my-5">
-                <form className="container mt-5 mb-5">
-                    <div className="row ">
+        <Container>
+            <Title order={2}>Perfil do Usuário</Title>
+            <Text><strong>Nome: {userData?.person.firstName} {userData?.person.lastName}</strong></Text>
+            <Text><strong>Email:</strong> {userData?.email}</Text>
+            <Text><strong>Data de Nascimento:</strong> {userData?.person.birthDate}</Text>
 
-                        <div className="col-12 ">
-                            <div className="form-group">
-
-                                <a href="/home" className="btn btn-outline-secondary mb-2 ">Voltar</a>
-                                <a href="/client_update" className="btn btn-primary mb-2 ">Alterar Dados</a>
-                                <a href="/password_update" className="btn btn-warning mb-2 ">Alterar Senha</a>
-
-                                <button onClick={deleteAccount} type="button" className="btn btn-danger mb-2 ">Inativar
-                                    Conta
-                                </button>
-
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </section>
-        </>
-    )
-}
+            <Container>
+                <Button
+                    variant="filled"
+                    color="cyan"
+                    radius="md"
+                    onClick={ () => changePage('/address/list')}>
+                    Endereços</Button>
+            </Container>
+        </Container>
+    );
+};
 
 export default ClientProfile;

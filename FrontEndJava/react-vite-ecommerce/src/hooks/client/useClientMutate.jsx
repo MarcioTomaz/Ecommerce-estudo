@@ -1,5 +1,5 @@
 import {useMutation} from "@tanstack/react-query";
-import {API_URL} from "./api.jsx";
+import {API_URL} from "../api.jsx";
 import axios from "axios";
 
 
@@ -7,7 +7,7 @@ const postData = async (data) => {
 
     // eslint-disable-next-line no-useless-catch
     try {
-        console.log(API_URL + '/create', data);
+        // console.log(API_URL + '/create', data);
         const response = await axios.post(API_URL + '/userPerson/create', data);
         return response.data;
     } catch (error) {
@@ -16,10 +16,9 @@ const postData = async (data) => {
     }
 }
 
-export function useClientMutate(){
-    console.log('USE CLIENT')
+export function useClientMutate() {
+    //  console.log('USE CLIENT')
     return useMutation({
         mutationFn: postData
     });
 }
-

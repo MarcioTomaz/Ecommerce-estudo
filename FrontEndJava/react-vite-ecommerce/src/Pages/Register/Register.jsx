@@ -1,10 +1,10 @@
 import React from "react";
-import {useForm} from "@mantine/form";
 import {Button, Group, TextInput, Paper, Container, Title} from "@mantine/core";
 import {IMaskInput} from 'react-imask';
 import {useClientMutate} from "../../hooks/client/useClientMutate.jsx";
 import {DateInput} from "@mantine/dates";
 import {useNavigate} from 'react-router-dom';
+import {useForm} from "@mantine/form";
 
 const RegisterPage = () => {
     const navigate = useNavigate();
@@ -42,7 +42,7 @@ const RegisterPage = () => {
     const {mutate} = useClientMutate();
 
     const handleSubmit = (values) => {
-        console.log('HANDLE SUBMIT');
+        // console.log('HANDLE SUBMIT');
         mutate(values);
         navigate('/home');
     };
