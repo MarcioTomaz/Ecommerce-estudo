@@ -2,6 +2,7 @@ package com.ec.ecommercev3.Entity;
 
 import com.ec.ecommercev3.DTO.Address.AddressDTO;
 import com.ec.ecommercev3.Entity.Enums.AddressType;
+import com.ec.ecommercev3.Entity.Enums.ResidencyType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,7 +27,8 @@ public class Address extends DomainEntity {
     private String street;
 
     @Column(name = "residencyType", nullable = false)
-    private String residencyType;
+    @Enumerated(EnumType.STRING)
+    private ResidencyType residencyType;
 
     @Column(name = "observation", nullable = true)
     private String observation;

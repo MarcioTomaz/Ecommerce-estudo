@@ -1,6 +1,7 @@
 package com.ec.ecommercev3.DTO.Address;
 
 import com.ec.ecommercev3.Entity.Enums.AddressType;
+import com.ec.ecommercev3.Entity.Enums.ResidencyType;
 import com.ec.ecommercev3.Entity.Person;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -23,7 +24,7 @@ public class AddressDTO {
     @NotBlank(message = "Rua inválida")
     private String street;
 
-    private String residencyType;
+    private ResidencyType residencyType;
 
     private String observation;
 
