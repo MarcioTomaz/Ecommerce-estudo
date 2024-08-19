@@ -48,7 +48,7 @@ public class AddressService {
 
         Person person = null;
 
-        person = personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("Usuário não encontrado") );
+        person = personRepository.findById(addressDTO.getPerson().getId()).orElseThrow( () -> new ResourceNotFoundException("Usuário não encontrado") );
 
         addressDTO.setPerson(person);
 

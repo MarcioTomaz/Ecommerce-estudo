@@ -4,6 +4,7 @@ import {useNavigate} from "react-router-dom";
 import {Button, Container, Group, Paper, TextInput, Title} from "@mantine/core";
 import {addressMutate} from "../../hooks/address/addressMutate.jsx";
 import {useForm} from "@mantine/form";
+import {ROUTES} from "../../routes/URLS.jsx";
 
 const Address = () => {
 
@@ -43,7 +44,7 @@ const Address = () => {
     const handleSubmit = (values) =>{
         // console.log('HANDLE VALUES ' + values);
         mutate(values);
-        navigate('/home');
+        navigate(ROUTES.HOME);
     }
 
     return (

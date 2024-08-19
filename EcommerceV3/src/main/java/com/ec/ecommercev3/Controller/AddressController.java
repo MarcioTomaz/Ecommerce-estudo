@@ -36,7 +36,7 @@ public class AddressController {
     }
 
     @GetMapping("/read/{id}")
-    public ResponseEntity<Address> readById(@PathVariable Long id){
+    public ResponseEntity<Address> readById(@PathVariable Long id) {
 
         Address result = addressService.readById(id);
 
@@ -44,21 +44,20 @@ public class AddressController {
     }
 
     @GetMapping("/read/address/{id}")
-    public ResponseEntity<List<Address>> readAllAddressById(@PathVariable Long id){
+    public ResponseEntity<List<Address>> readAllAddressById(@PathVariable Long id) {
 
         List<Address> result = addressService.readAllById(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-@DeleteMapping("/delete/{id}")
-    public ResponseEntity<Address> deleteAddressById(@PathVariable Long id){
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Address> deleteAddressById(@PathVariable Long id) {
 
         addressService.deleteById(id);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
 
 
 }

@@ -17,7 +17,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AddressEditDTO {
 
-    @Valid
     private Person person;
 
     @NotBlank(message = "Rua inválida")
