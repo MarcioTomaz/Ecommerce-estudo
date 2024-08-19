@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import {Table, ScrollArea, Container, Button, Modal, Group, Text, useMantineTheme} from '@mantine/core';
 import axios from "axios";
 import {API_URL} from "../../hooks/api.jsx";
+import {ROUTES} from "../../routes/URLS.jsx";
 
 
 const AddressList = () => {
@@ -43,7 +44,8 @@ const AddressList = () => {
     }, [userId]);
 
     const editAddress = (id) => {
-        navigate(`/address/update/${id}`);
+        // navigate(`/address/update/${id}`);
+        navigate(ROUTES.ADDRESS_UPDATE_ID + `/${id}`)
     }
 
     const confirmDeleteAddress = (id) => {
@@ -53,7 +55,7 @@ const AddressList = () => {
 
     const deleteAddress = () => {
         axios.delete(`${API_URL}/address/delete/${selectedAddressId}`)
-            .then(response => {
+            .then(() => {
                 setUserData(userData.filter((address) => address.id !== selectedAddressId));
                 setOpened(false);
             })
@@ -77,13 +79,16 @@ const AddressList = () => {
                 <Button style={{background: theme.colors.blue[9]}} onClick={() => editAddress(row.id)}>Editar</Button>
             </Table.Td>
             <Table.Td>
-                <Button style={{background: theme.colors.red[9]}} onClick={() => confirmDeleteAddress(row.id)}>Excluir</Button>
+                <Button style={{background: theme.colors.red[9]}}
+                        onClick={() => confirmDeleteAddress(row.id)}>Excluir</Button>
             </Table.Td>
         </Table.Tr>
     ));
 
     return (
         <Container>
+            <Button onClick={() => navigate(ROUTES.ADDRESS_REGISTER)}>Cadastrar novo endereço</Button>
+
             <Table miw={700}>
                 <Table.Thead>
                     <Table.Tr>
@@ -114,6 +119,9 @@ const AddressList = () => {
                     <Button color="red" onClick={deleteAddress}>Confirmar Exclusão</Button>
                 </Group>
             </Modal>
+            <Button style={{background: theme.colors.yellow[9]}} onClick={() => navigate('/profile')} type="button"
+                    mt="md">Voltar</Button>
+
         </Container>
     );
 }

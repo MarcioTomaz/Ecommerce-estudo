@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
-import {Container, Title, Text, Loader, Alert, Button} from '@mantine/core';
+import {Container, Title, Text, Loader, Alert, Button, Grid} from '@mantine/core';
 import {API_URL} from "../../hooks/api.jsx";
 import {useNavigate} from "react-router-dom";
+import {ROUTES} from "../../routes/URLS.jsx";
 
 const ClientProfile = () => {
     const [userId, setUserId] = useState(null);
@@ -39,7 +40,7 @@ const ClientProfile = () => {
         }
     }, [userId]);
 
-    const changePage = (page) =>{
+    const changePage = (page) => {
         navigate(`${page}`);
     }
 
@@ -49,21 +50,53 @@ const ClientProfile = () => {
     ''
     return (
         <Container>
-            <Title order={2}>Perfil do Usuário</Title>
-            <Text><strong>Nome: {userData?.person.firstName} {userData?.person.lastName}</strong></Text>
-            <Text><strong>Email:</strong> {userData?.email}</Text>
-            <Text><strong>Data de Nascimento:</strong> {userData?.person.birthDate}</Text>
+            <Grid>
+                <Grid.Col span={12}>
+                    <Title order={2}>Perfil do Usuário</Title>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                    <Text><strong>Nome: {userData?.person.firstName} {userData?.person.lastName}</strong></Text>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                    <Text><strong>Email:</strong> {userData?.email}</Text>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                    <Text><strong>Data de Nascimento:</strong> {userData?.person.birthDate}</Text>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                    <Text><strong>Sexo:</strong> {userData?.person.gender}</Text>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                    <Text><strong>Telefone:</strong> {userData?.person.phoneType}: {userData?.person.phoneNumber}
+                    </Text>
+                </Grid.Col>
+            </Grid>
 
             <Container>
-                <Button
-                    variant="filled"
-                    color="cyan"
-                    radius="md"
-                    onClick={ () => changePage('/address/list')}>
-                    Endereços</Button>
+                <Grid>
+                    <Grid.Col span={2}>
+                        <Button
+                            variant="filled"
+                            color="cyan"
+                            radius="md"
+                            onClick={() => changePage(ROUTES.ADDRESS_LIST)}>
+                            Endereços
+                        </Button>
+                    </Grid.Col>
+                    <Grid.Col span={2}>
+                        <Button
+                            variant="filled"
+                            color="cyan"
+                            radius="md"
+                            onClick={() => changePage(ROUTES.CARD_LIST)}>
+                            Cartões
+                        </Button>
+                    </Grid.Col>
+                </Grid>
             </Container>
         </Container>
-    );
+    )
+        ;
 };
 
 export default ClientProfile;

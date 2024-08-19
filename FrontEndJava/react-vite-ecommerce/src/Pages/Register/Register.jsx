@@ -44,7 +44,7 @@ const RegisterPage = () => {
     const handleSubmit = (values) => {
         // console.log('HANDLE SUBMIT');
         mutate(values);
-        navigate('/home');
+        navigate(ROUTES.HOME);
     };
 
     return (

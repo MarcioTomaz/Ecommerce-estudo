@@ -1,12 +1,12 @@
 import React from 'react';
 import classes from './address.module.css';
 import {useNavigate} from "react-router-dom";
-import {Button, Container, Group, Paper, TextInput, Title} from "@mantine/core";
+import {Button, Container, Grid, Group, Paper, Select, TextInput, Title, useMantineTheme} from "@mantine/core";
 import {addressMutate} from "../../hooks/address/addressMutate.jsx";
 import {useForm} from "@mantine/form";
 import {ROUTES} from "../../routes/URLS.jsx";
 
-const Address = () => {
+const AddressRegister = () => {
 
     const navigate = useNavigate();
 
@@ -14,7 +14,7 @@ const Address = () => {
         mode: 'uncontrolled',
         initialValues: {
             street: '',
-            residencyType: '',
+            residencyType: 'CASA',
             observation: '',
             number: '',
             district: '',
@@ -40,114 +40,177 @@ const Address = () => {
     });
 
     const {mutate} = addressMutate();
+    const theme = useMantineTheme();
 
-    const handleSubmit = (values) =>{
+    const handleSubmit = (values) => {
         // console.log('HANDLE VALUES ' + values);
         mutate(values);
         navigate(ROUTES.HOME);
     }
 
+    const getTranslation = (key) => {
+        const translations = {
+            EN: {
+                delivery: 'Delivery',
+                billing: 'Billing',
+                house: 'House',
+                apartment: 'Apartment',
+            },
+            PT: {
+                delivery: 'Entrega',
+                billing: 'Cobrança',
+                house: 'Casa',
+                apartment: 'Apartamento',
+            },
+        };
+        const currentLanguage = 'PT'; // Definir como variável global ao refatorar o front
+
+        return translations[currentLanguage][key];
+    };
+
+    const residencyTypeOptions = [
+        {value: 'CASA', label: getTranslation('house')},
+        {value: 'APARTAMENTO', label: getTranslation('apartment')}
+    ];
+
+    const addressTypeOptions = [
+        {value: 'ENTREGA', label: getTranslation('delivery')},
+        {value: 'COBRANCA', label: getTranslation('billing')}
+    ];
+
     return (
-        <Container size={420} my={40}>
+        <Container>
             <Paper withBorder shadow="md" p={30} mt={30} radius="md">
                 <Title order={2} align="center" mb="lg">
                     Register
                 </Title>
 
-
                 <form onSubmit={form.onSubmit(handleSubmit)}>
-                    <TextInput
-                        withAsterisk
-                        label="Street"
-                        placeholder="street..."
-                        {...form.getInputProps('street')}
-                        mb="md"
-                    />
+                    <Grid>
+                        <Grid.Col span={4}>
+                            <TextInput
+                                withAsterisk
+                                label="Street"
+                                placeholder="street..."
+                                {...form.getInputProps('street')}
+                                mb="md"
+                            />
+                        </Grid.Col>
 
-                    <TextInput
-                        withAsterisk
-                        label="residencyType"
-                        placeholder="residencyType..."
-                        {...form.getInputProps('residencyType')}
-                        mb="md"
-                    />
+                        <Grid.Col span={4}>
+                            <Select
+                                label="Tipo de Residência"
+                                {...form.getInputProps('residencyType')}
+                                data={residencyTypeOptions}
+                            />
+                        </Grid.Col>
 
-                    <TextInput
-                        withAsterisk
-                        label="observation"
-                        placeholder="observation..."
-                        {...form.getInputProps('observation')}
-                        mb="md"
-                    />
+                        <Grid.Col span={4}>
 
-                    <TextInput
-                        withAsterisk
-                        label="number"
-                        placeholder="number..."
-                        {...form.getInputProps('number')}
-                        mb="md"
-                    />
+                            <TextInput
+                                withAsterisk
+                                label="number"
+                                placeholder="number..."
+                                {...form.getInputProps('number')}
+                                mb="md"
+                            />
+                        </Grid.Col>
 
-                    <TextInput
-                        withAsterisk
-                        label="district"
-                        placeholder="district..."
-                        {...form.getInputProps('district')}
-                        mb="md"
-                    />
+                        <Grid.Col span={4}>
 
-                    <TextInput
-                        withAsterisk
-                        label="zipCode"
-                        placeholder="zipCode..."
-                        {...form.getInputProps('zipCode')}
-                        mb="md"
-                    />
+                            <TextInput
+                                withAsterisk
+                                label="district"
+                                placeholder="district..."
+                                {...form.getInputProps('district')}
+                                mb="md"
+                            />
+                        </Grid.Col>
 
-                    <TextInput
-                        withAsterisk
-                        label="logradouro"
-                        placeholder="logradouro..."
-                        {...form.getInputProps('logradouro')}
-                        mb="md"
-                    />
+                        <Grid.Col span={4}>
+                            <TextInput
+                                withAsterisk
+                                label="zipCode"
+                                placeholder="zipCode..."
+                                {...form.getInputProps('zipCode')}
+                                mb="md"
+                            />
+                        </Grid.Col>
 
-                    <TextInput
-                        withAsterisk
-                        label="city"
-                        placeholder="city..."
-                        {...form.getInputProps('city')}
-                        mb="md"
-                    />
+                        <Grid.Col span={4}>
+                            <TextInput
+                                withAsterisk
+                                label="logradouro"
+                                placeholder="logradouro..."
+                                {...form.getInputProps('logradouro')}
+                                mb="md"
+                            />
+                        </Grid.Col>
 
-                    <TextInput
-                        withAsterisk
-                        label="country"
-                        placeholder="country..."
-                        {...form.getInputProps('country')}
-                        mb="md"
-                    />
+                        <Grid.Col span={4}>
+                            <TextInput
+                                withAsterisk
+                                label="city"
+                                placeholder="city..."
+                                {...form.getInputProps('city')}
+                                mb="md"
+                            />
+                        </Grid.Col>
 
-                    <TextInput
-                        withAsterisk
-                        label="state"
-                        placeholder="state..."
-                        {...form.getInputProps('state')}
-                        mb="md"
-                    />
+                        <Grid.Col span={4}>
+                            <TextInput
+                                withAsterisk
+                                label="country"
+                                placeholder="country..."
+                                {...form.getInputProps('country')}
+                                mb="md"
+                            />
+                        </Grid.Col>
 
-                    <TextInput
-                        withAsterisk
-                        label="addressType"
-                        placeholder="addressType..."
-                        {...form.getInputProps('addressType')}
-                        mb="md"
-                    />
+                        <Grid.Col span={4}>
+                            <TextInput
+                                withAsterisk
+                                label="state"
+                                placeholder="state..."
+                                {...form.getInputProps('state')}
+                                mb="md"
+                            />
+                        </Grid.Col>
 
-                    <Group position="right" mt="md">
-                        <Button type="submit">Submit</Button>
-                    </Group>
+                        <Grid.Col span={4}>
+                            <Select
+                                label="Tipo de Endereço"
+                                {...form.getInputProps('addressType')}
+                                data={addressTypeOptions}
+                            />
+                        </Grid.Col>
 
+                        <Grid.Col span={12}>
+                            <TextInput
+                                withAsterisk
+                                label="observation"
+                                placeholder="observation..."
+                                {...form.getInputProps('observation')}
+                                mb="md"
+                            />
+                        </Grid.Col>
+
+                        <Grid>
+                            <Grid.Col span={6}>
+                                <Button type="submit" mt="md">Salvar</Button>
+                            </Grid.Col>
+                            <Grid.Col span={6}>
+                                <Button
+                                    style={{background: theme.colors.yellow[9]}}
+                                    onClick={() => navigate(ROUTES.ADDRESS_LIST)}
+                                    type="button"
+                                    mt="md"
+                                >
+                                    Voltar
+                                </Button>
+                            </Grid.Col>
+                        </Grid>
+                    </Grid>
                 </form>
             </Paper>
 
@@ -157,4 +220,4 @@ const Address = () => {
 
 }
 
-export default Address;
+export default AddressRegister;
