@@ -1,10 +1,7 @@
 package com.ec.ecommercev3.Entity;
 
 import com.ec.ecommercev3.Entity.Enums.ProductCategory;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,5 +23,9 @@ public class Product extends DomainEntity{
     @Enumerated(EnumType.STRING)
     private ProductCategory productCategory;
 
-    private Integer stock_quantity;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "currency_id", nullable = false)
+    private Currency currency;
+
+    private Integer stock;
 }

@@ -27,5 +27,8 @@ public class ProductInsertDTO extends DomainEntity {
     private ProductCategory productCategory;
 
     @NotNull
-    private Integer stock_quantity;
+    private Long currencyId;
+
+    @NotNull
+    private Integer stock;
 }

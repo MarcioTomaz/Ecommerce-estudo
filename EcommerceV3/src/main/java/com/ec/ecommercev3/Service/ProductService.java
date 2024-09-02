@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ProductService {
@@ -71,5 +72,21 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
         productRepository.delete(result);
+    }
+
+    @Transactional
+    public List<Product> readAllProductsForSale() {
+
+        return productRepository.findByStockGreaterThan(0);
+    }
+
+    @Transactional
+    public Product readById(Long productId) {
+        Product product = null;
+
+        product = productRepository.findById(productId)
+                .orElseThrow( () -> new ResourceNotFoundException("Produto não encontrado!"));
+
+        return product;
     }
 }

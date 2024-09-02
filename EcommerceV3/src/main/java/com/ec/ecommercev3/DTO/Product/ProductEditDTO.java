@@ -1,5 +1,6 @@
 package com.ec.ecommercev3.DTO.Product;
 
+import com.ec.ecommercev3.Entity.Currency;
 import com.ec.ecommercev3.Entity.DomainEntity;
 import com.ec.ecommercev3.Entity.Enums.ProductCategory;
 import jakarta.persistence.EnumType;
@@ -30,5 +31,8 @@ public class ProductEditDTO extends DomainEntity {
     private ProductCategory productCategory;
 
     @NotNull
-    private Integer stock_quantity;
+    private Long currencyId;
+
+    @NotNull
+    private Integer stock;
 }
