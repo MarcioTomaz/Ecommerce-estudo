@@ -44,7 +44,6 @@ const AddressList = () => {
     }, [userId]);
 
     const editAddress = (id) => {
-        // navigate(`/address/update/${id}`);
         navigate(ROUTES.ADDRESS_UPDATE_ID + `/${id}`)
     }
 

@@ -10,6 +10,8 @@ import {ROUTES} from "./URLS.jsx";
 import AddressRegister from "../Pages/address/AddressRegister.jsx";
 import CardList from "../Pages/Card/CardList.jsx";
 import CardRegister from "../Pages/Card/CardRegister.jsx";
+import ProductList from "../Pages/Product/ProductList.jsx";
+import ProductDetail from "../Pages/Product/ProductDetail.jsx";
 
 const RouteService = () => {
     return (
@@ -31,6 +33,9 @@ const RouteService = () => {
                     <Route path={ROUTES.CARD_LIST} element={<CardList/>} />
                     <Route path={ROUTES.CARD_REGISTER} element={<CardRegister/>} />
 
+                    <Route path={ROUTES.PRODUCT_LIST} element={<ProductList/>} />
+
+                    <Route path={ROUTES.PRODUCT_DETAILS} element={<ProductDetail/>}/>
 
                     <Route path="*" element={<PageNotFound />} />
                 </Routes>

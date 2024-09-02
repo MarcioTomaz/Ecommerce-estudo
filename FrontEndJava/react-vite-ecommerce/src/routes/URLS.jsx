@@ -16,4 +16,12 @@ export const ROUTES = {
 
     CARD_LIST: '/card/list',
     CARD_REGISTER: '/card/register',
+
+    PRODUCT_DETAILS: '/product/:id',
+    PRODUCT_LIST: '/product/list',
+    PRODUCT_LIST_STOCK: '/product/read',
+
+    //api
+    PRODUCT_READ_ID: '/product/read'
+
 };

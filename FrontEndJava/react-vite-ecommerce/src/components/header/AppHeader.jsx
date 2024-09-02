@@ -3,10 +3,11 @@ import {Group, Autocomplete, rem, Anchor} from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 import classes from './HeaderSearch.module.css';
 import {MantineLogo} from "@mantinex/mantine-logo";
+import {ROUTES} from "../../routes/URLS.jsx";
 
 const links = [
     { link: '/home', label: 'Home' },
-    { link: '/products', label: 'Produtos' },
+    { link: (ROUTES.PRODUCT_LIST), label: 'Produtos' },
     { link: '/learn', label: 'Sobre' },
     { link: '/login', label: 'Login' },
 ];
