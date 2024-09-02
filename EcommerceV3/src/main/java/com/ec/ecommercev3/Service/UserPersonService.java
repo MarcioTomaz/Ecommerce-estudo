@@ -10,6 +10,7 @@ import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,9 +31,9 @@ public class UserPersonService {
 
         UserPerson userPerson = new UserPerson();
 
-        Optional<UserPerson> emailVerify = userPersonRepository.findByEmail(userPersonInsertDTO.getEmail());
+        UserDetails emailVerify = userPersonRepository.findByEmail(userPersonInsertDTO.getEmail());
 
-        if(emailVerify.isPresent() && userPersonInsertDTO.getEmail().equals(emailVerify.get().getEmail())) {
+        if(emailVerify.isEnabled() && userPersonInsertDTO.getEmail().equals(emailVerify.getUsername())) {
 
             throw new ResourceNotFoundException("Email already exists");
         }
@@ -110,14 +111,16 @@ public class UserPersonService {
 
     @Transactional
     public UserPersonLoginDTO login(UserPersonLoginDTO userPersonLoginDTO) {
-        UserPerson user = userPersonRepository.findByEmail(userPersonLoginDTO.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Email incorreto!"));
+//        UserPerson user = userPersonRepository.findByEmail(userPersonLoginDTO.getEmail())
+//                .orElseThrow(() -> new ResourceNotFoundException("Email incorreto!"));
+
+        UserDetails user = userPersonRepository.findByEmail(userPersonLoginDTO.getEmail());
 
         if (!user.getPassword().equals(userPersonLoginDTO.getPassword())) {
             throw new ResourceNotFoundException("Senha incorreta!");
         }
         UserPersonLoginDTO result = modelMapper.map(user, UserPersonLoginDTO.class);
-        result.setId(user.getId());
+//        result.setId(user.getId());
         return result;
     }
 }

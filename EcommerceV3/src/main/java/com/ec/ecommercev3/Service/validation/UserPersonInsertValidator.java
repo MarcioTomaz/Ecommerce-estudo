@@ -8,6 +8,7 @@ import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,8 @@ public class UserPersonInsertValidator implements ConstraintValidator<UserPerson
 
         List<FieldMessage> list = new ArrayList<>();
 
-        UserPerson user = repository.findByEmail(dto.getEmail()).orElseThrow(() -> new ResourceNotFoundException("Email não encontrado!"));
+//        UserPerson user = repository.findByEmail(dto.getEmail()).orElseThrow(() -> new ResourceNotFoundException("Email não encontrado!"));
+        UserDetails user = repository.findByEmail(dto.getEmail());
 
         if (user != null) {
             list.add(new FieldMessage("email", "Email já cadastrado!"));
