@@ -3,11 +3,13 @@ package com.ec.ecommercev3.Controller;
 import com.ec.ecommercev3.DTO.Address.AddressDTO;
 import com.ec.ecommercev3.DTO.Address.AddressEditDTO;
 import com.ec.ecommercev3.Entity.Address;
+import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.AddressService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,10 +22,10 @@ public class AddressController {
     @Autowired
     private AddressService addressService;
 
-    @PostMapping("/create/{idPerson}")
-    public ResponseEntity<Address> createAddress(@PathVariable Long idPerson,
+    @PostMapping("/create")
+    public ResponseEntity<Address> createAddress(@AuthenticationPrincipal UserPerson userPerson,
                                                  @Valid @RequestBody AddressDTO addressDTO) {
-        Address result = addressService.create(idPerson, addressDTO);
+        Address result = addressService.create(userPerson.getId(), addressDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
@@ -43,10 +45,10 @@ public class AddressController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @GetMapping("/read/address/{id}")
-    public ResponseEntity<List<Address>> readAllAddressById(@PathVariable Long id) {
+    @GetMapping("/read/addresses")
+    public ResponseEntity<List<Address>> readAllAddressById(@AuthenticationPrincipal UserPerson userPerson) {
 
-        List<Address> result = addressService.readAllById(id);
+        List<Address> result = addressService.readAllById(userPerson.getId());
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

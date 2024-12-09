@@ -5,6 +5,7 @@ import com.ec.ecommercev3.Config.security.TokenService;
 import com.ec.ecommercev3.DTO.UserPerson.AuthenticationDTO;
 import com.ec.ecommercev3.DTO.UserPerson.LoginResponseDTO;
 import com.ec.ecommercev3.DTO.UserPerson.RegisterDTO;
+import com.ec.ecommercev3.Entity.Person;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Repository.UserPersonRepository;
 import jakarta.validation.Valid;
@@ -46,7 +47,7 @@ public class AuthenticationController {
         if(this.personRepository.findByEmail(dto.email()) != null) return ResponseEntity.badRequest().build();
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(dto.password());
-        UserPerson newUser = new UserPerson(dto.email(), encryptedPassword, dto.role());
+        UserPerson newUser = new UserPerson(dto.email(), encryptedPassword, dto.role(), dto.personDTO());
 
         this.personRepository.save(newUser);
 

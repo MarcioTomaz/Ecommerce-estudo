@@ -1,5 +1,6 @@
 package com.ec.ecommercev3.Entity;
 
+import com.ec.ecommercev3.DTO.PersonDTO;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonEditDTO;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonInsertDTO;
 import com.ec.ecommercev3.Entity.Enums.UserRole;
@@ -55,10 +56,11 @@ public class UserPerson extends DomainEntity implements UserDetails {
         this.person = new Person(dto.getPersonDTO());
     }
 
-    public UserPerson(String email, String encryptedPassword, UserRole role) {
+    public UserPerson(String email, String encryptedPassword, UserRole role, PersonDTO personDTO) {
         this.email = email;
         this.password = encryptedPassword;
         this.role = role;
+        this.person = new Person(personDTO);
     }
 
     //Spring security

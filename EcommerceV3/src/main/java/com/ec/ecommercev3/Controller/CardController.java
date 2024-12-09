@@ -2,11 +2,13 @@ package com.ec.ecommercev3.Controller;
 
 import com.ec.ecommercev3.DTO.Card.CardDTO;
 import com.ec.ecommercev3.Entity.Card;
+import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.CardService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,9 +21,10 @@ public class CardController {
     @Autowired
     private CardService cardService;
 
-    @PostMapping("/create/{idPerson}")
-    public ResponseEntity<Card> addCard( @PathVariable Long idPerson, @Valid @RequestBody CardDTO cardDTO) {
-        Card result = cardService.create(idPerson, cardDTO);
+    @PostMapping("/create")
+    public ResponseEntity<Card> addCard( @AuthenticationPrincipal UserPerson userPerson,
+                                         @Valid @RequestBody CardDTO cardDTO) {
+        Card result = cardService.create(userPerson.getId(), cardDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
@@ -34,16 +37,16 @@ public class CardController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @GetMapping("/read/card/{id}")
-    public ResponseEntity<List<Card>> readAllAddressById(@PathVariable Long id){
+    @GetMapping("/read/card")
+    public ResponseEntity<List<Card>> readAllCardById(@AuthenticationPrincipal UserPerson userPerson){
 
-        List<Card> result = cardService.readAllById(id);
+        List<Card> result = cardService.readAllById(userPerson.getId());
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Card> deleteAddressById(@PathVariable Long id) {
+    public ResponseEntity<Card> deleteCardById(@PathVariable Long id) {
 
         cardService.deleteById(id);
 

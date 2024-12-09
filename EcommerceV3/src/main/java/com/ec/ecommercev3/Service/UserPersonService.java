@@ -10,7 +10,10 @@ import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -53,6 +56,9 @@ public class UserPersonService {
     public UserPerson update(Long userPersonId, UserPersonEditDTO userPersonEditDTO) {
         UserPerson oldUserPerson = userPersonRepository.findById(userPersonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+        String encryptedPassword = new BCryptPasswordEncoder().encode(userPersonEditDTO.getPassword());
+        userPersonEditDTO.setPassword(encryptedPassword);
 
         // Mapear os dados do DTO para a entidade existente
         modelMapper.map(userPersonEditDTO, oldUserPerson);

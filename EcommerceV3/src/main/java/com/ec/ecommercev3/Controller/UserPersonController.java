@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,14 +22,6 @@ public class UserPersonController {
 
     @Autowired
     private UserPersonService userPersonService;
-    
-    @PostMapping("/login")
-    public ResponseEntity<UserPersonLoginDTO> login(@RequestBody UserPersonLoginDTO userPersonLoginDTO){
-
-        UserPersonLoginDTO result = userPersonService.login(userPersonLoginDTO);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
 
     @PutMapping("/update/password")
     private ResponseEntity<UserPerson> updatePassword(@RequestBody @Valid UserPersonUpdatePasswordDTO userPersonUpdatePasswordDTO){
@@ -38,19 +31,11 @@ public class UserPersonController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<UserPerson> create(@RequestBody UserPersonInsertDTO userPersonInsertDTO){
+    @PutMapping("/update")
+    public ResponseEntity<UserPerson> edit(@RequestBody @Valid UserPersonEditDTO userPersonEditDTO,
+                                           @AuthenticationPrincipal UserPerson userDetails) {
 
-        UserPerson result = userPersonService.create(userPersonInsertDTO);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
-    }
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<UserPerson> edit(@PathVariable Long id,
-                                           @RequestBody @Valid UserPersonEditDTO userPersonEditDTO) {
-
-        UserPerson userPersonEdit = userPersonService.update(id, userPersonEditDTO);
+        UserPerson userPersonEdit = userPersonService.update(userDetails.getId(), userPersonEditDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(userPersonEdit);
     }
@@ -63,10 +48,10 @@ public class UserPersonController {
         return ResponseEntity.status(HttpStatus.OK).body(userPerson);
     }
 
-    @GetMapping("/read/{id}")
-    public ResponseEntity<UserPerson> readById(@PathVariable Long id){
+    @GetMapping("/readById")
+    public ResponseEntity<UserPerson> readById(@AuthenticationPrincipal UserPerson userDetails){
 
-        UserPerson userPerson = userPersonService.readById(id);
+        UserPerson userPerson = userPersonService.readById(userDetails.getId());
 
         return ResponseEntity.status(HttpStatus.OK).body(userPerson);
     }
