@@ -2,7 +2,6 @@ package com.ec.ecommercev3.Service;
 
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonEditDTO;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonInsertDTO;
-import com.ec.ecommercev3.DTO.UserPerson.UserPersonLoginDTO;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonUpdatePasswordDTO;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Repository.UserPersonRepository;
@@ -10,8 +9,6 @@ import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserPersonService {
@@ -46,7 +42,7 @@ public class UserPersonService {
         try {
             userPersonRepository.save(userPerson);
         } catch (Exception ex) {
-
+            throw new RuntimeException(ex);
         }
 
         return userPerson;
@@ -54,7 +50,7 @@ public class UserPersonService {
 
     @Transactional
     public UserPerson update(Long userPersonId, UserPersonEditDTO userPersonEditDTO) {
-        UserPerson oldUserPerson = userPersonRepository.findById(userPersonId)
+        UserPerson oldUserPerson = userPersonRepository.findByIdAndActiveTrue(userPersonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(userPersonEditDTO.getPassword());
@@ -73,11 +69,11 @@ public class UserPersonService {
 
     @Transactional
     public List<UserPerson> readAll() {
-        List<UserPerson> userPersonList = new ArrayList<>();
+        List<UserPerson> userPersonList;
         try {
             userPersonList = userPersonRepository.findAll();
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
 
         return userPersonList;
@@ -85,9 +81,9 @@ public class UserPersonService {
 
     @Transactional
     public UserPerson readById(Long id) {
-        UserPerson userPerson = null;
+        UserPerson userPerson;
 
-        userPerson = userPersonRepository.findById(id)
+        userPerson = userPersonRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("usuário não encontrado"));
 
         return userPerson;
@@ -98,7 +94,8 @@ public class UserPersonService {
 
         UserPerson result = userPersonRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
-        userPersonRepository.delete(result);
+        result.setActive(false);
+        userPersonRepository.save(result);
     }
 
     @Transactional
@@ -113,20 +110,5 @@ public class UserPersonService {
         up.setPassword(upDTO.getNewPassword());
         up.setUpdatedDate(LocalDateTime.now());
         return userPersonRepository.save(up);
-    }
-
-    @Transactional
-    public UserPersonLoginDTO login(UserPersonLoginDTO userPersonLoginDTO) {
-//        UserPerson user = userPersonRepository.findByEmail(userPersonLoginDTO.getEmail())
-//                .orElseThrow(() -> new ResourceNotFoundException("Email incorreto!"));
-
-        UserDetails user = userPersonRepository.findByEmail(userPersonLoginDTO.getEmail());
-
-        if (!user.getPassword().equals(userPersonLoginDTO.getPassword())) {
-            throw new ResourceNotFoundException("Senha incorreta!");
-        }
-        UserPersonLoginDTO result = modelMapper.map(user, UserPersonLoginDTO.class);
-//        result.setId(user.getId());
-        return result;
     }
 }

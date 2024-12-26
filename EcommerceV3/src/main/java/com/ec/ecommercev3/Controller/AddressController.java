@@ -30,9 +30,9 @@ public class AddressController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    @PostMapping("/update/{id}")
-    public ResponseEntity<Address> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressEditDTO addressDTO) {
-        Address result = addressService.update(id, addressDTO);
+    @PostMapping("/update/{addressID}")
+    public ResponseEntity<Address> updateAddress(@PathVariable Long addressID, @AuthenticationPrincipal UserPerson userPerson, @Valid @RequestBody AddressEditDTO addressDTO) {
+        Address result = addressService.update(addressID, userPerson, addressDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -15,13 +16,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Transactional
     @Modifying
     @Query(nativeQuery = true, value =
-            " UPDATE _product SET stock_quantity = stock_quantity + :stockQuantityDiscount WHERE id = :productId ")
+            "UPDATE _product SET stock = stock + :stockQuantityDiscount WHERE id = :productId")
     void updateStock(
             @Param("productId") Long productId,
             @Param("stockQuantityDiscount") Integer stockQuantityDiscount);
 
 
-    @Transactional
-    List<Product> findByStockGreaterThan(int stock);
 
+    @Transactional
+    List<Product> findByStockGreaterThanAndActiveTrue(int stock);
+
+    Optional<Product> findByIdAndActiveTrue(Long productId);
 }

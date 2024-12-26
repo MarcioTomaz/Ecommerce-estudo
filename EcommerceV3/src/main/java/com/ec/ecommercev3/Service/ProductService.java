@@ -28,7 +28,9 @@ public class ProductService {
 
         try {
             productRepository.save(product);
-        }catch (Exception e){}
+        }catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         return product;
     }
@@ -49,7 +51,7 @@ public class ProductService {
     @Transactional
     public Product updateStock(Long productId, ProductEditStockDTO productEditStockDTO) {
 
-        Product product = null;
+        Product product;
         // Verifica se o produto existe
         product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
@@ -68,23 +70,24 @@ public class ProductService {
     @Transactional
     public void delete(Long productId){
 
-        Product result = productRepository.findById(productId)
+        Product result = productRepository.findByIdAndActiveTrue(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
-        productRepository.delete(result);
+        result.setActive(false);
+        productRepository.save(result);
     }
 
     @Transactional
     public List<Product> readAllProductsForSale() {
 
-        return productRepository.findByStockGreaterThan(0);
+        return productRepository.findByStockGreaterThanAndActiveTrue(0);
     }
 
     @Transactional
     public Product readById(Long productId) {
-        Product product = null;
+        Product product;
 
-        product = productRepository.findById(productId)
+        product = productRepository.findByIdAndActiveTrue(productId)
                 .orElseThrow( () -> new ResourceNotFoundException("Produto não encontrado!"));
 
         return product;

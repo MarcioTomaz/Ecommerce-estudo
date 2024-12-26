@@ -4,6 +4,7 @@ import com.ec.ecommercev3.DTO.Address.AddressDTO;
 import com.ec.ecommercev3.DTO.Address.AddressEditDTO;
 import com.ec.ecommercev3.Entity.Address;
 import com.ec.ecommercev3.Entity.Person;
+import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Repository.AddressRepository;
 import com.ec.ecommercev3.Repository.PersonRepository;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
@@ -27,10 +28,10 @@ public class AddressService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public Address create(Long id, AddressDTO addressDTO) {
-        Person person = null;
+    public Address create(Long personID, AddressDTO addressDTO) {
+        Person person;
 
-        person = personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("Usuário não encontrado") );
+        person = personRepository.findById(personID).orElseThrow( () -> new ResourceNotFoundException("Usuário não encontrado") );
 
         addressDTO.setPerson(person);
 
@@ -42,13 +43,13 @@ public class AddressService {
     }
 
     @Transactional
-    public Address update(Long id, AddressEditDTO addressDTO) {
+    public Address update(Long id, UserPerson userPerson, AddressEditDTO addressDTO) {
         Address oldAddress = addressRepository.findById(id)
                 .orElseThrow( () -> new ResourceNotFoundException("Endereço não encontrado!"));
 
-        Person person = null;
+        Person person;
 
-        person = personRepository.findById(addressDTO.getPerson().getId()).orElseThrow( () -> new ResourceNotFoundException("Usuário não encontrado") );
+        person = personRepository.findById(userPerson.getId()).orElseThrow( () -> new ResourceNotFoundException("Usuário não encontrado") );
 
         addressDTO.setPerson(person);
 
@@ -61,9 +62,9 @@ public class AddressService {
 
     @Transactional
     public Address readById(Long addresId) {
-        Address address = null;
+        Address address;
 
-        address = addressRepository.findById(addresId)
+        address = addressRepository.findByIdAndActiveTrue(addresId)
                 .orElseThrow( () -> new ResourceNotFoundException("Endereço não encontrado"));
 
         return address;
@@ -71,9 +72,9 @@ public class AddressService {
 
     @Transactional
     public List<Address> readAllById(Long clientId) {
-        List<Address> addresses = null;
+        List<Address> addresses;
 
-        addresses = addressRepository.findAllAddressByPersonId(clientId);
+        addresses = addressRepository.findAllAddressByPersonIdAndActiveTrue(clientId);
 
         return addresses;
     }
@@ -84,6 +85,7 @@ public class AddressService {
         Address address = addressRepository.findById(id)
                 .orElseThrow( () -> new ResourceNotFoundException("Endereço não encontrado!"));
 
-        addressRepository.delete(address);
+        address.setActive(false);
+        addressRepository.save(address);
     }
 }

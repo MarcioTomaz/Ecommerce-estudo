@@ -2,10 +2,12 @@ package com.ec.ecommercev3.Service;
 
 import com.ec.ecommercev3.DTO.CartAddDTO;
 import com.ec.ecommercev3.Entity.Cart;
+import com.ec.ecommercev3.Entity.Item;
+import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Repository.CartRepository;
-import com.ec.ecommercev3.Service.exceptions.CartAlreadyExistsException;
+import com.ec.ecommercev3.Repository.UserPersonRepository;
+import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,32 +15,33 @@ import org.springframework.stereotype.Service;
 public class CartService {
 
     @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    private UserPersonRepository userPersonRepository;
+
     @Transactional
-    public Cart create(CartAddDTO dto) {
+    public Cart create(CartAddDTO dto, Long personId) {
 
-        Cart checkExistCart = cartRepository.findByUserPersonId(dto.getUserPersonId());
+        UserPerson userPerson = userPersonRepository.findById(personId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado!"));
 
-        if(checkExistCart != null && checkExistCart.isActive()){
-            throw new CartAlreadyExistsException("O carrinho já existe!");
+        Cart checkExistCart = cartRepository.findByUserPersonId(personId);
+
+        Cart cart;
+        if (checkExistCart != null) {
+            cart = checkExistCart;
+            cart.getItems().clear(); // Limpa itens antigos
+        } else {
+            cart = new Cart();
+            cart.setUserPerson(userPerson);
         }
 
-        Cart cart = modelMapper.map(dto, Cart.class);
-
-        cart.setItems(dto.getItems());
-
-        //calcular o total do carrinho aqui depois
-
-        try {
-            cartRepository.save(cart);
-        }catch (Exception e){
-            e.printStackTrace();
+        for (Item item : dto.getItems()) {
+            item.setCart(cart);  // Configura a referência reversa
+            cart.getItems().add(item);  // Adiciona à lista existente
         }
 
-        return cart;
+        return cartRepository.save(cart);  // Persiste tudo de uma vez
     }
 }
