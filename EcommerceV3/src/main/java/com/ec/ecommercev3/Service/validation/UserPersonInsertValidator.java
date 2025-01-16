@@ -27,7 +27,6 @@ public class UserPersonInsertValidator implements ConstraintValidator<UserPerson
 
         List<FieldMessage> list = new ArrayList<>();
 
-//        UserPerson user = repository.findByEmail(dto.getEmail()).orElseThrow(() -> new ResourceNotFoundException("Email não encontrado!"));
         UserDetails user = repository.findByEmail(dto.getEmail());
 
         if (user != null) {

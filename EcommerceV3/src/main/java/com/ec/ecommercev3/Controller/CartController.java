@@ -26,15 +26,4 @@ public class CartController {
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
-
-//    @PutMapping("/update")
-//    public ResponseEntity<Cart> updateCart(@AuthenticationPrincipal UserPerson userPerson,
-//                                        @Valid @RequestBody CartAddDTO cart) {
-//        Cart result = cartService.update(cart, userPerson.getId());
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(result);
-//    }
-
-
-
 }
