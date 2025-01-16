@@ -1,6 +1,7 @@
 package com.ec.ecommercev3.Exception;
 
 import com.ec.ecommercev3.Service.exceptions.CartAlreadyExistsException;
+import com.ec.ecommercev3.Service.exceptions.OrderCreationException;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -89,6 +90,17 @@ public class ResourceExceptionHandler {
         StandardError err = new StandardError();
         err.setStatus(status.value());
         err.setError("Entity not found");
+        err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(OrderCreationException.class)
+    public ResponseEntity<StandardError> orderCreationException(OrderCreationException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError();
+        err.setStatus(status.value());
+        err.setError("Order creation error");
         err.setMessage(e.getMessage());
         err.setPath(request.getRequestURI());
         return ResponseEntity.status(status).body(err);

@@ -1,7 +1,7 @@
 package com.ec.ecommercev3.Service;
 
 import com.ec.ecommercev3.DTO.Card.CardDTO;
-import com.ec.ecommercev3.Entity.Card;
+import com.ec.ecommercev3.Entity.Payment.Card;
 import com.ec.ecommercev3.Entity.Person;
 import com.ec.ecommercev3.Repository.CardRepository;
 import com.ec.ecommercev3.Repository.PersonRepository;

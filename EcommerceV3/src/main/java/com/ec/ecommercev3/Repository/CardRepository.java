@@ -1,6 +1,6 @@
 package com.ec.ecommercev3.Repository;
 
-import com.ec.ecommercev3.Entity.Card;
+import com.ec.ecommercev3.Entity.Payment.Card;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

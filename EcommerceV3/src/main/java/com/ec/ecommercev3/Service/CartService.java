@@ -26,7 +26,7 @@ public class CartService {
         UserPerson userPerson = userPersonRepository.findById(personId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado!"));
 
-        Cart checkExistCart = cartRepository.findByUserPersonId(personId);
+        Cart checkExistCart = cartRepository.findByUserPersonId(personId).orElse(null);
 
         Cart cart;
         if (checkExistCart != null) {
@@ -43,5 +43,11 @@ public class CartService {
         }
 
         return cartRepository.save(cart);  // Persiste tudo de uma vez
+    }
+
+    @Transactional
+    public void saveClearCart(Cart cart){
+        cart.getItems().clear();
+        cartRepository.save(cart);
     }
 }

@@ -26,7 +26,7 @@ public abstract class DomainEntity implements Serializable {
     private Long id;
 
     @Column(name = "active", nullable = false)
-    private boolean active;
+    private boolean active = true;
 
     @Column(name = "creation_date", nullable = false)
     private LocalDate creationDate = LocalDate.now();

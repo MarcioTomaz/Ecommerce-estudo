@@ -1,7 +1,7 @@
 package com.ec.ecommercev3.Controller;
 
 import com.ec.ecommercev3.DTO.Card.CardDTO;
-import com.ec.ecommercev3.Entity.Card;
+import com.ec.ecommercev3.Entity.Payment.Card;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.CardService;
 import jakarta.validation.Valid;

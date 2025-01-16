@@ -1,8 +1,10 @@
-package com.ec.ecommercev3.Entity;
+package com.ec.ecommercev3.Entity.Payment;
 
 
 import com.ec.ecommercev3.DTO.Card.CardDTO;
+import com.ec.ecommercev3.Entity.DomainEntity;
 import com.ec.ecommercev3.Entity.Enums.CardFlag;
+import com.ec.ecommercev3.Entity.Person;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,7 +21,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table( name= "_card")
 @Entity
-public class Card extends DomainEntity{
+public class Card extends DomainEntity {
 
     @ManyToOne(optional = true)
     @JsonIgnore// evita loop infinito
@@ -31,13 +34,13 @@ public class Card extends DomainEntity{
     @Column(name = "holder")
     private String holder;// titular do cartao
 
-    @Column(name = "expirationDate")
+    @Column(name = "expiration_Date")
     private LocalDateTime expirationDate; // data de validade
 
     @Column(name = "security")
     private String security; // 3 digitos la
 
-    @Column(name = "holderCpf")
+    @Column(name = "holder_Cpf")
     private String holderCpf;
 
     @Column(name = "preferencial")
@@ -50,6 +53,10 @@ public class Card extends DomainEntity{
     @Column(name = "alias")
     private String alias;
 
+    @OneToMany(mappedBy = "card")
+    private List<CreditCardPaymentMethod> paymentMethods;
+
+
     public Card(CardDTO cardDTO) {
         this.person = cardDTO.getPerson();
         this.number = cardDTO.getNumber();
@@ -61,4 +68,5 @@ public class Card extends DomainEntity{
         this.flag = cardDTO.getFlag();
         this.alias = cardDTO.getAlias();
     }
+
 }
