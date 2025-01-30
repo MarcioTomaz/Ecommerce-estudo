@@ -1,5 +1,6 @@
 package com.ec.ecommercev3.Entity;
 
+import com.ec.ecommercev3.Entity.Comment.Comment;
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
 import com.ec.ecommercev3.Entity.Payment.PaymentMethod;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -43,4 +44,7 @@ public class Order extends DomainEntity {
     private List<PaymentMethod> paymentMethods = new ArrayList<>();
 
     private Double total;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 }

@@ -1,4 +1,6 @@
 package com.ec.ecommercev3.DTO.UserPerson;
 
-public record AuthenticationDTO(String email, String password) {
+import com.ec.ecommercev3.Entity.Enums.UserType;
+
+public record AuthenticationDTO(String email, String password, UserType userType) {
 }

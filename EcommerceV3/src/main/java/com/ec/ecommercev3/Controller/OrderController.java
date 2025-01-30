@@ -2,12 +2,15 @@ package com.ec.ecommercev3.Controller;
 
 
 import com.ec.ecommercev3.DTO.Order.OrderDTO;
+import com.ec.ecommercev3.DTO.Order.OrderListDTO;
 import com.ec.ecommercev3.DTO.Order.PaymentDTO;
 import com.ec.ecommercev3.Entity.Order;
 import com.ec.ecommercev3.Entity.Payment.PaymentMethod;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,10 +43,21 @@ public class OrderController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<Page<OrderListDTO>> orderList(@AuthenticationPrincipal UserPerson userPerson,
+                                                        Pageable pageable) {
 
+        Page<OrderListDTO> result = orderService.findAllClientOrders(userPerson, pageable);
 
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderDTO> orderStep3(@AuthenticationPrincipal UserPerson userPerson, @PathVariable Long orderId) {
 
+        OrderDTO result = orderService.findOrderById(userPerson, orderId);
 
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 
 }

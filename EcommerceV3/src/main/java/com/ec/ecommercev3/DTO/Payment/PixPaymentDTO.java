@@ -2,6 +2,7 @@ package com.ec.ecommercev3.DTO.Payment;
 
 import com.ec.ecommercev3.Entity.Enums.PaymentType;
 import com.ec.ecommercev3.Entity.Enums.PixKeyType;
+import com.ec.ecommercev3.Entity.Payment.PixPayment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,11 @@ public class PixPaymentDTO extends PaymentMethodDTO {
     private String pixKey;
     private Double amountPaid;
     private String transactionId;
+
+    public PixPaymentDTO(PixPayment paymentMethod) {
+        super();
+
+    }
 
     @Override
     public PaymentType getType() {

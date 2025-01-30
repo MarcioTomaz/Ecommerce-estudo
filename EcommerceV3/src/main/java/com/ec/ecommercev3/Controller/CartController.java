@@ -24,6 +24,6 @@ public class CartController {
             @Valid @RequestBody CartAddDTO cart) {
         Cart result = cartService.create(cart, userPerson.getId());
 
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

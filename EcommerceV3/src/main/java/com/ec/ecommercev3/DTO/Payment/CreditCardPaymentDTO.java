@@ -2,6 +2,7 @@ package com.ec.ecommercev3.DTO.Payment;
 
 import com.ec.ecommercev3.DTO.Card.CardDTO;
 import com.ec.ecommercev3.Entity.Enums.PaymentType;
+import com.ec.ecommercev3.Entity.Payment.CreditCardPaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,10 @@ public class CreditCardPaymentDTO extends PaymentMethodDTO {
     private Long id;
     private Double amountPaid;
     private String transactionId;
+
+    public CreditCardPaymentDTO(CreditCardPaymentMethod paymentMethod) {
+        super();
+    }
 
     @Override
     public PaymentType getType() {

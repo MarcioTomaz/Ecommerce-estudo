@@ -7,14 +7,13 @@ import com.ec.ecommercev3.Entity.Enums.OrderStatus;
 
 import java.util.List;
 
-
-public record OrderDTO(
+public record OrderAdmDTO(
         PersonDTO person,
         AddressAdmDTO billingAddress,
         AddressAdmDTO shippingAddress,
-        Double cart,
+        Double total,
 //        String coupon,
-        OrderStatus status, //pendente, enviado, etc...
+        OrderStatus status, //pendente, enviado, etc...,
         List<PaymentMethodDTO> paymentMethods
 ) {
 }

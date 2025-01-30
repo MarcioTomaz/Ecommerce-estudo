@@ -1,8 +1,6 @@
 package com.ec.ecommercev3.Exception;
 
-import com.ec.ecommercev3.Service.exceptions.CartAlreadyExistsException;
-import com.ec.ecommercev3.Service.exceptions.OrderCreationException;
-import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
+import com.ec.ecommercev3.Service.exceptions.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
@@ -62,6 +60,7 @@ public class ResourceExceptionHandler {
         return ResponseEntity.status(status).body(err);
     }
 
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<StandardError> passwordException(IllegalArgumentException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.CONFLICT;
@@ -106,5 +105,28 @@ public class ResourceExceptionHandler {
         return ResponseEntity.status(status).body(err);
     }
 
+    @ExceptionHandler(TotalMismatchException.class)
+    public ResponseEntity<StandardError> totalMismatchException(TotalMismatchException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+        StandardError err = new StandardError();
+        err.setStatus(status.value());
+        err.setError("Payment amounts do not correspond to the order value");
+        err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+
+    }
+
+    @ExceptionHandler(RoleUnauthorizedException.class)
+    public ResponseEntity<StandardError> roleUnauthorizedException(RoleUnauthorizedException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        StandardError err = new StandardError();
+        err.setStatus(status.value());
+        err.setError("You don't have permission to perform this action.");
+        err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+
+    }
 
 }
