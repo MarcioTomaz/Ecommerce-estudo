@@ -3,5 +3,5 @@
 Projeto separado em branchs
 
 Branch atual:
-## Branch createOrder
-Você pode acessar a branch `createOrder` diretamente [aqui](https://github.com/MarcioTomaz/Ecommerce-estudo/tree/frontEndRefactoring).
+## Branch frontEndRefactoring
+Você pode acessar a branch `frontEndRefactoring` diretamente [aqui](https://github.com/MarcioTomaz/Ecommerce-estudo/tree/frontEndRefactoring).
