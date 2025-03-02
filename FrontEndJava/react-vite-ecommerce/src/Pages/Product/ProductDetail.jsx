@@ -1,37 +1,29 @@
-import {Container, Grid, Paper, Title, Text, Loader, Alert, Textarea, Button} from "@mantine/core";
-import React, {useEffect, useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import { Container, Grid, Paper, Title, Text, Textarea, Button, NumberInput } from "@mantine/core";
+import React, {useContext, useEffect, useState} from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import {API_URL} from "../../hooks/api.jsx";
-import {ROUTES} from "../../routes/URLS.jsx";
+import { API_URL } from "../../hooks/api.jsx";
+import { ROUTES } from "../../routes/URLS.jsx";
+import {AuthContext} from "../../GlobalConfig/AuthContext.jsx";
 
 const ProductDetail = () => {
-    const [userId, setUserId] = useState(null);
-    const [productData, setproductData] = useState(null);
+
+    const { login, userToken } = useContext(AuthContext);
+
+    const [productData, setProductData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    const {id} = useParams();
+    const { id } = useParams();
+    const [quantity, setQuantity] = useState(1);
 
-    useEffect(() => {
-        // Recupera o ID do usuário do localStorage
-        const storedUser = localStorage.getItem("userLogin");
-        if (storedUser) {
-            const parsedValue = JSON.parse(storedUser);
-            const userID = parsedValue.id;
-            if (userID) {
-                setUserId(userID);
-            }
-        }
-    }, []);
 
     useEffect(() => {
         axios
             .get(`${API_URL}${ROUTES.PRODUCT_READ_ID}/${id}`)
             .then((response) => {
-                setproductData(response.data);
+                setProductData(response.data);
                 setIsLoading(false);
-                console.log("PRODUTO: ", response.data);
             })
             .catch((error) => {
                 setError(error);
@@ -39,16 +31,30 @@ const ProductDetail = () => {
             });
     }, [id]);
 
-    // if (isLoading) return <Loader/>;
+    const addToCart = (idItem, quantityItem, productName, productPrice) => {
+        const cartStorage = localStorage.getItem("cartItem");
+        let cartData = cartStorage ? JSON.parse(cartStorage) : [];
 
-    // if (error) return <Alert title="Erro" color="red">Erro ao carregar os dados: {error.message}</Alert>;
-    // ''
+        const existingItemCart = cartData.findIndex(item => item.product.id === idItem);
+
+        if(existingItemCart !== -1) {
+            cartData[existingItemCart].quantity += quantityItem;
+        }else{
+            cartData.push({
+                product: { id: idItem, name: productName, price: productPrice  },
+                quantity: quantityItem
+            });
+        }
+        // Salva no localStorage
+        localStorage.setItem("cartItem", JSON.stringify(cartData));
+
+        console.log("Carrinho atualizado:", cartData);
+    };
 
     return (
         <Container size="lg">
             <Paper padding="md">
                 <Grid>
-
                     <Grid.Col span={12}>
                         <Title order={2}>{productData?.product_name}</Title>
                         <Text>Detalhes do Produto</Text>
@@ -86,17 +92,26 @@ const ProductDetail = () => {
                         </Text>
                         <Text>Estoque: {productData?.stock}</Text>
                         <Text>Categoria: {productData?.productCategory}</Text>
-                        <Textarea value={productData?.product_description}></Textarea>
-
+                        <Textarea value={productData?.product_description} readOnly />
+                        <NumberInput
+                            label="Quantidade"
+                            min={1}
+                            max={productData?.stock || 1}
+                            value={quantity}
+                            onChange={setQuantity}
+                        />
                         <Button
+                            onClick={() => addToCart(productData?.id, quantity,
+                                productData?.product_name,
+                                productData?.product_price,)}
                             variant="filled"
                             color="yellow"
                             size="lg"
-                            radius="lg">Comprar
+                            radius="lg"
+                        >
+                            Comprar
                         </Button>
                     </Grid.Col>
-
-
                 </Grid>
             </Paper>
         </Container>

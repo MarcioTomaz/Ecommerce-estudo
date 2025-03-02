@@ -45,7 +45,7 @@ function Footer() {
                         </ActionIcon>
                         <ActionIcon size="lg" variant="default" radius="xl">
                             <IconBrandInstagram style={{width: rem(18), height: rem(18)}} stroke={1.5}/>
-                        </ActionIcon>
+                            notlisanna        </ActionIcon>
                     </Group>
                 </div>
             </div>

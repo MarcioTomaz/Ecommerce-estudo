@@ -43,9 +43,8 @@ const AddressRegister = () => {
     const theme = useMantineTheme();
 
     const handleSubmit = (values) => {
-        // console.log('HANDLE VALUES ' + values);
         mutate(values);
-        navigate(ROUTES.HOME);
+        navigate(ROUTES.ADDRESS_LIST);
     }
 
     const getTranslation = (key) => {

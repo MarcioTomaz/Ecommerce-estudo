@@ -7,7 +7,6 @@ const postData = async (data) => {
 
     // eslint-disable-next-line no-useless-catch
     try {
-        // console.log(API_URL + '/create', data);
         const response = await axios.post(API_URL + '/userPerson/create', data);
         return response.data;
     } catch (error) {
@@ -17,7 +16,6 @@ const postData = async (data) => {
 }
 
 export function useClientMutate() {
-    //  console.log('USE CLIENT')
     return useMutation({
         mutationFn: postData
     });

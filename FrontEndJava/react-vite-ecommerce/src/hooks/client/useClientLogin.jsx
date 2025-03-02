@@ -7,9 +7,7 @@ const postData = async (data) => {
 
     // eslint-disable-next-line no-useless-catch
     try {
-        //  console.log(API_URL + '/login', data);
-        const response = await axios.post(API_URL + '/userPerson/login', data);
-        //   console.log('VALOR NO USECLIENTE LOGIN ' + JSON.stringify(response.data))
+        const response = await axios.post(API_URL + '/auth/login', data);
         return response.data;
     } catch (error) {
         // Propaga o erro para o chamador
@@ -18,7 +16,6 @@ const postData = async (data) => {
 }
 
 export function useClientLogin(){
-    //  console.log('USE CLIENT LOGIN')
     return useMutation({
         mutationFn: postData
     });

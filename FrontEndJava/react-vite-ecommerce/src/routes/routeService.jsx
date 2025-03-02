@@ -12,11 +12,15 @@ import CardList from "../Pages/Card/CardList.jsx";
 import CardRegister from "../Pages/Card/CardRegister.jsx";
 import ProductList from "../Pages/Product/ProductList.jsx";
 import ProductDetail from "../Pages/Product/ProductDetail.jsx";
+import AppHeader from "../components/header/AppHeader.jsx";
+import CartDetails from "../Pages/Cart/CartDetails.jsx";
+import Checkout from "../Pages/Order/Checkout.jsx";
 
 const RouteService = () => {
     return (
         <>
             <BrowserRouter>
+                <AppHeader/>
                 <Routes>
                     <Route path={ROUTES.HOME} element={<Home/>}/>
                     <Route path={ROUTES.HOME_ALT} element={<Home/>}/>
@@ -36,6 +40,10 @@ const RouteService = () => {
                     <Route path={ROUTES.PRODUCT_LIST} element={<ProductList/>} />
 
                     <Route path={ROUTES.PRODUCT_DETAILS} element={<ProductDetail/>}/>
+
+                    <Route path={ROUTES.CART_DETAILS} element={<CartDetails />}/>
+
+                    <Route path={ROUTES.CHECKOUT} element={<Checkout />}/>
 
                     <Route path="*" element={<PageNotFound />} />
                 </Routes>
