@@ -25,7 +25,13 @@ export const ROUTES = {
 
     CART_DETAILS: '/cart',
 
+    ORDER_LIST: '/order/list',
+
+    //ORDER
     CHECKOUT: '/checkout',
+    ORDER_DETAILS:'/order/details/:id',
+    ORDER_PAYMENT: '/order/:id/payment',
+    PAYMENT: '/payment',
 
     //api
     PRODUCT_READ_ID: '/product/read'

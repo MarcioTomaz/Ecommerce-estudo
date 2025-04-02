@@ -10,8 +10,8 @@ const initialLinks = [
     { link: '/home', label: 'Home' },
     { link: ROUTES.PRODUCT_LIST, label: 'Produtos' },
     { link: '/learn', label: 'Sobre' },
-    { link: '/login', label: 'Login' },
     { link: '/cart', label: 'Carrinho' },
+    { link: '/login', label: 'Login' },
 ];
 
 function AppHeader() {

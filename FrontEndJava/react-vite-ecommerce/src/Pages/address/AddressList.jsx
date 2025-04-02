@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import {useNavigate} from 'react-router-dom';
-import {Table, ScrollArea, Container, Button, Modal, Group, Text, useMantineTheme} from '@mantine/core';
+import {Button, Container, Group, Modal, Table, Text, useMantineTheme} from '@mantine/core';
 import axios from "axios";
 import {API_URL} from "../../hooks/api.jsx";
 import {ROUTES} from "../../routes/URLS.jsx";

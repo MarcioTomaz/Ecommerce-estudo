@@ -15,6 +15,9 @@ import ProductDetail from "../Pages/Product/ProductDetail.jsx";
 import AppHeader from "../components/header/AppHeader.jsx";
 import CartDetails from "../Pages/Cart/CartDetails.jsx";
 import Checkout from "../Pages/Order/Checkout.jsx";
+import OrderClientList from "../Pages/client/OrderClientList.jsx";
+import OrderDetails from "../Pages/Order/OrderDetails.jsx";
+import PaymentStep from "../Pages/Order/OrderPayment.jsx";
 
 const RouteService = () => {
     return (
@@ -44,6 +47,11 @@ const RouteService = () => {
                     <Route path={ROUTES.CART_DETAILS} element={<CartDetails />}/>
 
                     <Route path={ROUTES.CHECKOUT} element={<Checkout />}/>
+                    <Route path={ROUTES.ORDER_PAYMENT} element={<PaymentStep />} />
+
+                    <Route path={ROUTES.ORDER_LIST} element={<OrderClientList />}/>
+
+                    <Route path={ROUTES.ORDER_DETAILS} element={<OrderDetails />} />
 
                     <Route path="*" element={<PageNotFound />} />
                 </Routes>

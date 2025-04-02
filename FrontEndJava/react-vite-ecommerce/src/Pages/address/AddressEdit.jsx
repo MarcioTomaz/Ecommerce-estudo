@@ -112,7 +112,7 @@ const AddressForm = () => {
     const handleSubmit = async (values) => {
         try {
             await axios.post(`${API_URL}/address/update/${id}`, values,
-                {headers: { 'Authorization': `Bearer ${token}` }});
+                {headers: { 'Authorization': `Bearer ${userToken}` }});
             navigate(ROUTES.ADDRESS_LIST);
         } catch (error) {
             console.error('Erro ao atualizar dados do endereço:', error);

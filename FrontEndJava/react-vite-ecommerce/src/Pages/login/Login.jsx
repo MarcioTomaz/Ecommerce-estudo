@@ -34,7 +34,8 @@ const Login = () => {
         mutate(values, {
             onSuccess: (data) => {
                 login(data.token); // Armazena o token no contexto
-                navigate('/profile');
+
+                // navigate('/profile');
             },
             onError: (error) => {
                 console.error('Error during mutation:', error);

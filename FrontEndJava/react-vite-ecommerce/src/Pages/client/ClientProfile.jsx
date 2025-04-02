@@ -21,8 +21,12 @@ const ClientProfile = () => {
             headers: { 'Authorization': `Bearer ${userToken}` }
         })
             .then(response => {
+
+                // if(response.data)
+                console.log(response.data);
                 setUserData(response.data);
                 setIsLoading(false);
+
             })
             .catch(error => {
                 setError(error);
@@ -52,6 +56,7 @@ const ClientProfile = () => {
                 </Grid>
                 <Divider my="sm" />
                 <Group position="center" mt="md">
+                    <Button variant="filled" color="cyan" radius="md" onClick={() => changePage(ROUTES.ORDER_LIST)}>Pedidos</Button>
                     <Button variant="filled" color="cyan" radius="md" onClick={() => changePage(ROUTES.ADDRESS_LIST)}>Endereços</Button>
                     <Button variant="filled" color="cyan" radius="md" onClick={() => changePage(ROUTES.CARD_LIST)}>Cartões</Button>
                 </Group>

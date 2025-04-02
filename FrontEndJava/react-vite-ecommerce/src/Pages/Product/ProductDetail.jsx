@@ -1,4 +1,4 @@
-import { Container, Grid, Paper, Title, Text, Textarea, Button, NumberInput } from "@mantine/core";
+import {Container, Grid, Paper, Title, Text, Textarea, Button, NumberInput, useMantineTheme} from "@mantine/core";
 import React, {useContext, useEffect, useState} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -16,6 +16,7 @@ const ProductDetail = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [quantity, setQuantity] = useState(1);
+    const theme = useMantineTheme();
 
 
     useEffect(() => {
@@ -49,6 +50,8 @@ const ProductDetail = () => {
         localStorage.setItem("cartItem", JSON.stringify(cartData));
 
         console.log("Carrinho atualizado:", cartData);
+
+        navigate("/cart");
     };
 
     return (
@@ -113,6 +116,8 @@ const ProductDetail = () => {
                         </Button>
                     </Grid.Col>
                 </Grid>
+                <Button style={{background: theme.colors.yellow[9]}} onClick={() => navigate('/profile')} type="button"
+                        mt="md">Voltar</Button>
             </Paper>
         </Container>
     );
