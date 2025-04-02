@@ -1,8 +1,8 @@
 package com.ec.ecommercev3.DTO.Product;
 
-import com.ec.ecommercev3.Entity.Currency;
 import com.ec.ecommercev3.Entity.DomainEntity;
 import com.ec.ecommercev3.Entity.Enums.ProductCategory;
+import com.ec.ecommercev3.Entity.Product;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
@@ -35,4 +35,13 @@ public class ProductEditDTO extends DomainEntity {
 
     @NotNull
     private Integer stock;
+
+
+    public ProductEditDTO(Product product) {
+        product_name = product.getProduct_name();
+        product_description = product.getProduct_description();
+        product_price = product.getProduct_price();
+        productCategory = product.getProductCategory();
+    }
+
 }

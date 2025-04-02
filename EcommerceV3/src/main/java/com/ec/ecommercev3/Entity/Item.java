@@ -29,13 +29,13 @@ public class Item extends DomainEntity {
     @Column
     private Long quantity;
 
-    @Column
-    private Double total_value;
+//    @Column
+//    private Double total_value;
 
-    public Item(Product product, Long quantity, Double totalValue, Order order) {
+    public Item(Product product, Long quantity, /*Double totalValue,*/ Order order) {
         this.product = product;
         this.quantity = quantity;
-        this.total_value = totalValue;
+//        this.total_value = totalValue;
         this.order = order;
     }
 

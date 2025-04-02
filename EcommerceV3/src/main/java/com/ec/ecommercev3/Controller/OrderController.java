@@ -1,9 +1,7 @@
 package com.ec.ecommercev3.Controller;
 
 
-import com.ec.ecommercev3.DTO.Order.OrderDTO;
-import com.ec.ecommercev3.DTO.Order.OrderListDTO;
-import com.ec.ecommercev3.DTO.Order.PaymentDTO;
+import com.ec.ecommercev3.DTO.Order.*;
 import com.ec.ecommercev3.Entity.Order;
 import com.ec.ecommercev3.Entity.Payment.PaymentMethod;
 import com.ec.ecommercev3.Entity.UserPerson;
@@ -27,7 +25,7 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping("/create")
-    public ResponseEntity<Order> orderStep1(@RequestBody OrderDTO order1,
+    public ResponseEntity<Order> orderStep1(@RequestBody OrderStepOneDTO order1,
                                             @AuthenticationPrincipal UserPerson userPerson) {
         Order order = orderService.create(order1, userPerson);
 
@@ -35,10 +33,9 @@ public class OrderController {
     }
 
     @PostMapping("/{orderId}/payment")
-    public ResponseEntity <List<PaymentMethod>> orderStep2(@PathVariable Long orderId, @RequestBody PaymentDTO paymentDTO) {
+    public ResponseEntity <List<PaymentMethod>> orderStep2(@RequestBody PaymentDTO paymentDTO) {
 
-
-        List<PaymentMethod> result = orderService.addPaymentOrder(paymentDTO);
+        orderService.addPaymentOrder(paymentDTO);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -56,6 +53,22 @@ public class OrderController {
     public ResponseEntity<OrderDTO> orderStep3(@AuthenticationPrincipal UserPerson userPerson, @PathVariable Long orderId) {
 
         OrderDTO result = orderService.findOrderById(userPerson, orderId);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/details/{orderId}")
+    public ResponseEntity<OrderDTO> orderDetails(@AuthenticationPrincipal UserPerson userPerson, @PathVariable Long orderId) {
+
+        OrderDTO result = orderService.findOrderById(userPerson, orderId);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/details/summary/{orderId}")
+    public ResponseEntity<OrderSumaryDTO> orderDetailsSummary(@AuthenticationPrincipal UserPerson userPerson, @PathVariable Long orderId) {
+
+        OrderSumaryDTO result = orderService.findOrderByIdSummary(userPerson, orderId);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

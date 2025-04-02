@@ -1,6 +1,5 @@
 package com.ec.ecommercev3.DTO.Payment;
 
-import com.ec.ecommercev3.DTO.Card.CardDTO;
 import com.ec.ecommercev3.Entity.Enums.PaymentType;
 import com.ec.ecommercev3.Entity.Payment.CreditCardPaymentMethod;
 import lombok.AllArgsConstructor;

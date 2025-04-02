@@ -50,13 +50,15 @@ public class CardService {
     }
 
     @Transactional
-    public List<Card> readAllById(Long clientId) {
-        List<Card> card;
+    public List<CardDTO> readAllById(Long clientId) {
+        List<Card> cards = cardRepository.findAllByPersonIdAndActiveTrue(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Não encontrado"));
 
-        card = cardRepository.findAllCardByPersonIdAndActiveTrue(clientId);
-
-        return card;
+        return cards.stream()
+                .map(CardDTO::new)
+                .toList();
     }
+
 
     @Transactional
     public void deleteById(Long id) {

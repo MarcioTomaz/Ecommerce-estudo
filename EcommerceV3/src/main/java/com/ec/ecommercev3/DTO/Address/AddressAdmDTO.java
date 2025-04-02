@@ -3,10 +3,8 @@ package com.ec.ecommercev3.DTO.Address;
 import com.ec.ecommercev3.Entity.Address;
 import com.ec.ecommercev3.Entity.Enums.AddressType;
 import com.ec.ecommercev3.Entity.Enums.ResidencyType;
-import com.ec.ecommercev3.Entity.Person;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +17,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AddressAdmDTO {
 
-    private Long id;
+private Long id;
 
     @NotBlank(message = "Rua inválida")
     private String street;
