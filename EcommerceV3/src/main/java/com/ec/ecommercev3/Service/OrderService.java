@@ -6,6 +6,7 @@ import com.ec.ecommercev3.DTO.Payment.CreditCardPaymentDTO;
 import com.ec.ecommercev3.DTO.Payment.PaymentMethodDTO;
 import com.ec.ecommercev3.DTO.Payment.PixPaymentDTO;
 import com.ec.ecommercev3.DTO.PersonDTO;
+import com.ec.ecommercev3.DTO.Product.ProductEditDTO;
 import com.ec.ecommercev3.Entity.*;
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
 import com.ec.ecommercev3.Entity.Payment.Card;
@@ -58,14 +59,14 @@ public class OrderService {
     private PaymentMethodRepository paymentMethodRepository;
 
     @Transactional
-    public Order create(OrderDTO order, UserPerson userPerson) {
+    public Order create(OrderStepOneDTO order, UserPerson userPerson) {
 
         Order newOrder = new Order();
 
-        Address billingAddress = addressRepository.findByIdAndActiveTrue(order.billingAddress().getId())
+        Address billingAddress = addressRepository.findByIdAndActiveTrue(order.billingAddress())
                 .orElseThrow(() -> new ResourceNotFoundException("Erro! Endereço não encontrado"));
 
-        Address shippingAddress = addressRepository.findByIdAndActiveTrue(order.shippingAddress().getId())
+        Address shippingAddress = addressRepository.findByIdAndActiveTrue(order.shippingAddress())
                 .orElseThrow(() -> new ResourceNotFoundException("Erro! Endereço não encontrado"));
 
         Cart cart = cartRepository.findByUserPersonId(userPerson.getId())
@@ -80,7 +81,6 @@ public class OrderService {
         BigDecimal roundedTotal = BigDecimal.valueOf(total).setScale(2, RoundingMode.HALF_UP);
         double roundedTotalDouble = roundedTotal.doubleValue();
 
-
         newOrder.setPerson(userPerson.getPerson());
         newOrder.setActive(true);
         newOrder.setBillingAddress(billingAddress);
@@ -91,7 +91,7 @@ public class OrderService {
                 .map(cartItem -> new Item(
                         cartItem.getProduct(),
                         cartItem.getQuantity(),
-                        cartItem.getTotal_value(),
+//                        cartItem.getTotal_value(),
                         newOrder // Associação com o pedido atual
                 ))
                 .toList(); // Cria a nova lista de itens
@@ -100,7 +100,7 @@ public class OrderService {
         newOrder.setOrderItems(orderItems);
 
         newOrder.setTotal(roundedTotalDouble);
-        newOrder.setStatus(OrderStatus.PROCESSING);
+        newOrder.setStatus(OrderStatus.WAITING_FOR_PAYMENT);
 
         try {
             orderRepository.save(newOrder);
@@ -207,6 +207,11 @@ public class OrderService {
         Order result = orderRepository.findById(orderId).orElseThrow(() ->
                 new ResourceNotFoundException("Pedido não encontrado!"));
 
+        List<OrderItemsDTO> orderItemsDTO = result.getOrderItems().stream()
+                .map( item -> new OrderItemsDTO(item.getId(),
+                        new ProductEditDTO(item.getProduct()),
+                        item.getQuantity()) ).toList();
+
 
         PersonDTO personDTO = new PersonDTO(result.getPerson());
         AddressAdmDTO billingAddressDTO = new AddressAdmDTO(result.getBillingAddress());
@@ -222,9 +227,28 @@ public class OrderService {
                 personDTO,
                 billingAddressDTO,
                 shippingAddressDTO,
+                orderItemsDTO,
                 result.getTotal(),
                 result.getStatus(),
                 paymentMethods
+        );
+    }
+
+    @Transactional
+    public OrderSumaryDTO findOrderByIdSummary(UserPerson userPerson, Long orderId) {
+
+        Order result = orderRepository.findById(orderId).orElseThrow(() ->
+                new ResourceNotFoundException("Pedido não encontrado!"));
+
+        List<OrderItemsDTO> orderItemsDTO = result.getOrderItems().stream()
+                .map( item -> new OrderItemsDTO(item.getId(),
+                        new ProductEditDTO(item.getProduct()),
+                        item.getQuantity()) ).toList();
+
+        // Retornar o DTO preenchido
+        return new OrderSumaryDTO(
+                orderItemsDTO,
+                result.getTotal()
         );
     }
 

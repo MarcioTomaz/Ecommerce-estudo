@@ -12,6 +12,7 @@ public record OrderDTO(
         PersonDTO person,
         AddressAdmDTO billingAddress,
         AddressAdmDTO shippingAddress,
+        List<OrderItemsDTO> orderItemsDTO,
         Double cart,
 //        String coupon,
         OrderStatus status, //pendente, enviado, etc...

@@ -31,14 +31,17 @@ public class AddressController {
     }
 
     @PostMapping("/update/{addressID}")
-    public ResponseEntity<Address> updateAddress(@PathVariable Long addressID, @AuthenticationPrincipal UserPerson userPerson, @Valid @RequestBody AddressEditDTO addressDTO) {
+    public ResponseEntity<Address> updateAddress(@PathVariable Long addressID,
+                                                 @AuthenticationPrincipal UserPerson userPerson,
+                                                 @Valid @RequestBody AddressEditDTO addressDTO) {
         Address result = addressService.update(addressID, userPerson, addressDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping("/read/{id}")
-    public ResponseEntity<Address> readById(@PathVariable Long id) {
+    public ResponseEntity<Address> readById(@PathVariable Long id,
+                                            @AuthenticationPrincipal UserPerson userPerson) {
 
         Address result = addressService.readById(id);
 

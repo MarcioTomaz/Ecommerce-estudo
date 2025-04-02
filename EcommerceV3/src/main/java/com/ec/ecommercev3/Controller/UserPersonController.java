@@ -1,8 +1,6 @@
 package com.ec.ecommercev3.Controller;
 
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonEditDTO;
-import com.ec.ecommercev3.DTO.UserPerson.UserPersonInsertDTO;
-import com.ec.ecommercev3.DTO.UserPerson.UserPersonLoginDTO;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonUpdatePasswordDTO;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.UserPersonService;
@@ -12,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -49,9 +46,9 @@ public class UserPersonController {
     }
 
     @GetMapping("/readById")
-    public ResponseEntity<UserPerson> readById(@AuthenticationPrincipal UserPerson userDetails){
+    public ResponseEntity<UserPersonEditDTO> readById(@AuthenticationPrincipal UserPerson userDetails){
 
-        UserPerson userPerson = userPersonService.readById(userDetails.getId());
+        UserPersonEditDTO userPerson = userPersonService.readById(userDetails.getId());
 
         return ResponseEntity.status(HttpStatus.OK).body(userPerson);
     }

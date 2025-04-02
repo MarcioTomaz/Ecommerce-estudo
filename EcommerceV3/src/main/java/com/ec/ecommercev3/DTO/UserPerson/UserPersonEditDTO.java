@@ -2,6 +2,7 @@ package com.ec.ecommercev3.DTO.UserPerson;
 
 import com.ec.ecommercev3.DTO.PersonDTO;
 import com.ec.ecommercev3.Entity.Enums.UserType;
+import com.ec.ecommercev3.Entity.UserPerson;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.Valid;
@@ -30,4 +31,11 @@ public class UserPersonEditDTO {
 
     @Valid
     private PersonDTO personDTO;
+
+    public UserPersonEditDTO(UserPerson userPerson) {
+        this.email = userPerson.getEmail();
+        this.password = userPerson.getPassword();
+        this.userType = userPerson.getUserType();
+        this.personDTO = new PersonDTO(userPerson.getPerson());
+    }
 }

@@ -38,15 +38,15 @@ public class CardController {
     }
 
     @GetMapping("/read/card")
-    public ResponseEntity<List<Card>> readAllCardById(@AuthenticationPrincipal UserPerson userPerson){
+    public ResponseEntity<List<CardDTO>> readAllCardById(@AuthenticationPrincipal UserPerson userPerson){
 
-        List<Card> result = cardService.readAllById(userPerson.getId());
+        List<CardDTO> result = cardService.readAllById(userPerson.getId());
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Card> deleteCardById(@PathVariable Long id) {
+    public ResponseEntity<Card> deleteCardById(@AuthenticationPrincipal UserPerson userPerson, @PathVariable Long id) {
 
         cardService.deleteById(id);
 

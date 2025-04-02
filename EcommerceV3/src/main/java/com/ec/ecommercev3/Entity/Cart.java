@@ -24,9 +24,6 @@ public class Cart extends DomainEntity{
     private List<Item> items = new ArrayList<>();
 
     @Column
-    private boolean currentCart;
-
-    @Column
     private Double total_value;
 
     public void setItems(List<Item> items) {

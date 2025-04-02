@@ -80,13 +80,12 @@ public class UserPersonService {
     }
 
     @Transactional
-    public UserPerson readById(Long id) {
-        UserPerson userPerson;
+    public UserPersonEditDTO readById(Long id) {
 
-        userPerson = userPersonRepository.findByIdAndActiveTrue(id)
+        UserPerson userPerson = userPersonRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("usuário não encontrado"));
 
-        return userPerson;
+        return new UserPersonEditDTO(userPerson);
     }
 
     @Transactional

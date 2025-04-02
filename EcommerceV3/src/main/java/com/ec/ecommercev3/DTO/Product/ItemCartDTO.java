@@ -1,18 +1,17 @@
-package com.ec.ecommercev3.DTO;
+package com.ec.ecommercev3.DTO.Product;
 
-import com.ec.ecommercev3.Entity.Item;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartAddDTO {
+public class ItemCartDTO {
 
-    private List<Item> items;
+    private Long productID;
+
+    private int quantity;
 }
