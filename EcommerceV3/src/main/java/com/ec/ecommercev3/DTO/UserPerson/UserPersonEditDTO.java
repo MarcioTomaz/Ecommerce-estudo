@@ -1,6 +1,7 @@
 package com.ec.ecommercev3.DTO.UserPerson;
 
 import com.ec.ecommercev3.DTO.PersonDTO;
+import com.ec.ecommercev3.Entity.Enums.UserRole;
 import com.ec.ecommercev3.Entity.Enums.UserType;
 import com.ec.ecommercev3.Entity.UserPerson;
 import jakarta.persistence.EnumType;
@@ -26,8 +27,7 @@ public class UserPersonEditDTO {
     @NotBlank(message = "Senha inválida")
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    private UserType userType;
+    private UserRole role;
 
     @Valid
     private PersonDTO personDTO;
@@ -35,7 +35,7 @@ public class UserPersonEditDTO {
     public UserPersonEditDTO(UserPerson userPerson) {
         this.email = userPerson.getEmail();
         this.password = userPerson.getPassword();
-        this.userType = userPerson.getUserType();
+        this.role = userPerson.getRole();
         this.personDTO = new PersonDTO(userPerson.getPerson());
     }
 }

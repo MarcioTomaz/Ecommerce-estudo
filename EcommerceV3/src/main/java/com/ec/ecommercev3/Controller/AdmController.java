@@ -3,6 +3,7 @@ package com.ec.ecommercev3.Controller;
 import com.ec.ecommercev3.DTO.Order.AdmOrderManagementDTO;
 import com.ec.ecommercev3.DTO.Order.OrderAdmDTO;
 import com.ec.ecommercev3.DTO.Order.OrderListAdmDTO;
+import com.ec.ecommercev3.DTO.Order.OrderListDTO;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class AdmController {
     public ResponseEntity<String> acceptOrder(@AuthenticationPrincipal UserPerson userPerson,
                                               @RequestBody AdmOrderManagementDTO admOrderManagementDTO) {
 
-        orderService.admAcceptOrder(admOrderManagementDTO);
+        orderService.admAcceptOrder(admOrderManagementDTO, userPerson);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

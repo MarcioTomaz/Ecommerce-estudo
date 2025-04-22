@@ -50,9 +50,6 @@ public class Person extends DomainEntity{
     @OneToMany(mappedBy = "person" , cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Card> cardList;
 
-//    @OneToMany(mappedBy = "userPerson", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Order> orders;
-
     public Person(PersonDTO dto) {
         this.firstName = dto.getFirstName();
         this.lastName = dto.getLastName();

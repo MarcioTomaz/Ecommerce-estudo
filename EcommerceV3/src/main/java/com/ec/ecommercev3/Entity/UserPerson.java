@@ -52,7 +52,7 @@ public class UserPerson extends DomainEntity implements UserDetails {
     public UserPerson(UserPersonEditDTO dto) {
         this.email = dto.getEmail();
         this.password = dto.getPassword();
-        this.userType = dto.getUserType();
+//        this.userType = dto.getUserType();
         this.person = new Person(dto.getPersonDTO());
     }
 

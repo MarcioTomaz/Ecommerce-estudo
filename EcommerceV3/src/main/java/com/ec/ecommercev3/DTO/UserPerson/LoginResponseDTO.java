@@ -1,4 +1,4 @@
 package com.ec.ecommercev3.DTO.UserPerson;
 
-public record LoginResponseDTO(String token) {
+public record LoginResponseDTO(String token, String role) {
 }

@@ -49,12 +49,6 @@ public class CartService {
     }
 
     @Transactional
-    public void saveClearCart(Cart cart){
-        cart.getItems().clear();
-        cartRepository.save(cart);
-    }
-
-    @Transactional
     public List<ProductCheckoutDTO> findItemFromCart(UserPerson userPerson) {
 
         try {

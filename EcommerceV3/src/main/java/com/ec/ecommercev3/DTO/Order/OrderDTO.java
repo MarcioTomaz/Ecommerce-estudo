@@ -1,6 +1,7 @@
 package com.ec.ecommercev3.DTO.Order;
 
 import com.ec.ecommercev3.DTO.Address.AddressAdmDTO;
+import com.ec.ecommercev3.DTO.Comment.CommentDTO;
 import com.ec.ecommercev3.DTO.Payment.PaymentMethodDTO;
 import com.ec.ecommercev3.DTO.PersonDTO;
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
@@ -16,6 +17,7 @@ public record OrderDTO(
         Double cart,
 //        String coupon,
         OrderStatus status, //pendente, enviado, etc...
-        List<PaymentMethodDTO> paymentMethods
+        List<PaymentMethodDTO> paymentMethods,
+        List<CommentDTO> comments
 ) {
 }

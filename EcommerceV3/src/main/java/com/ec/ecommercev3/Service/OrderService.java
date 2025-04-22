@@ -1,6 +1,7 @@
 package com.ec.ecommercev3.Service;
 
 import com.ec.ecommercev3.DTO.Address.AddressAdmDTO;
+import com.ec.ecommercev3.DTO.Comment.CommentDTO;
 import com.ec.ecommercev3.DTO.Order.*;
 import com.ec.ecommercev3.DTO.Payment.CreditCardPaymentDTO;
 import com.ec.ecommercev3.DTO.Payment.PaymentMethodDTO;
@@ -8,6 +9,7 @@ import com.ec.ecommercev3.DTO.Payment.PixPaymentDTO;
 import com.ec.ecommercev3.DTO.PersonDTO;
 import com.ec.ecommercev3.DTO.Product.ProductEditDTO;
 import com.ec.ecommercev3.Entity.*;
+import com.ec.ecommercev3.Entity.Comment.Comment;
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
 import com.ec.ecommercev3.Entity.Payment.Card;
 import com.ec.ecommercev3.Entity.Payment.CreditCardPaymentMethod;
@@ -27,8 +29,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.ec.ecommercev3.Entity.Enums.CommentType.REJECTION_REASON;
 
 @Service
 public class OrderService {
@@ -208,9 +213,9 @@ public class OrderService {
                 new ResourceNotFoundException("Pedido não encontrado!"));
 
         List<OrderItemsDTO> orderItemsDTO = result.getOrderItems().stream()
-                .map( item -> new OrderItemsDTO(item.getId(),
+                .map(item -> new OrderItemsDTO(item.getId(),
                         new ProductEditDTO(item.getProduct()),
-                        item.getQuantity()) ).toList();
+                        item.getQuantity())).toList();
 
 
         PersonDTO personDTO = new PersonDTO(result.getPerson());
@@ -222,6 +227,10 @@ public class OrderService {
                 .map(PaymentMethodDTO::fromEntity) // Convertendo para o DTO correto
                 .toList();
 
+        List<CommentDTO> commentDTO = result.getComments().stream()
+                .map( comment -> new CommentDTO(comment.getComment(), comment.getCommentType()))
+                .toList();
+
         // Retornar o DTO preenchido
         return new OrderDTO(
                 personDTO,
@@ -230,8 +239,9 @@ public class OrderService {
                 orderItemsDTO,
                 result.getTotal(),
                 result.getStatus(),
-                paymentMethods
-        );
+                paymentMethods,
+                commentDTO
+                );
     }
 
     @Transactional
@@ -241,9 +251,9 @@ public class OrderService {
                 new ResourceNotFoundException("Pedido não encontrado!"));
 
         List<OrderItemsDTO> orderItemsDTO = result.getOrderItems().stream()
-                .map( item -> new OrderItemsDTO(item.getId(),
+                .map(item -> new OrderItemsDTO(item.getId(),
                         new ProductEditDTO(item.getProduct()),
-                        item.getQuantity()) ).toList();
+                        item.getQuantity())).toList();
 
         // Retornar o DTO preenchido
         return new OrderSumaryDTO(
@@ -273,7 +283,6 @@ public class OrderService {
         Order result = orderRepository.findById(orderId).orElseThrow(() ->
                 new ResourceNotFoundException("Pedido não encontrado!"));
 
-
         PersonDTO personDTO = new PersonDTO(result.getPerson());
         AddressAdmDTO billingAddressDTO = new AddressAdmDTO(result.getBillingAddress());
         AddressAdmDTO shippingAddressDTO = new AddressAdmDTO(result.getShippingAddress());
@@ -282,7 +291,6 @@ public class OrderService {
                 .stream()
                 .map(PaymentMethodDTO::fromEntity) // Convertendo para o DTO correto
                 .toList();
-
 
         // Retornar o DTO preenchido
         return new OrderAdmDTO(
@@ -296,18 +304,22 @@ public class OrderService {
     }
 
     @Transactional
-    public void admAcceptOrder(AdmOrderManagementDTO admOrderManagementDTO) {
+    public void admAcceptOrder(AdmOrderManagementDTO admOrderManagementDTO, UserPerson userPerson) {
 
         Order orderToAccept = orderRepository.findById(admOrderManagementDTO.orderId())
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
 
-        if(admOrderManagementDTO.isAccept().equals(true)){
+        if (admOrderManagementDTO.isAccept().equals(true)) {
             orderToAccept.setStatus(OrderStatus.SHIPPED);
-        }else{
+        } else {
             orderToAccept.setStatus(OrderStatus.CANCELED);
+
+            orderToAccept.getComments().add(
+                    new Comment(admOrderManagementDTO.reason(),
+                            REJECTION_REASON, orderToAccept,
+                            userPerson));
         }
 
         orderRepository.save(orderToAccept);
-
     }
 }
