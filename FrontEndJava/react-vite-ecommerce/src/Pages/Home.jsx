@@ -1,8 +1,19 @@
-import React from 'react';
+import React, {useEffect} from 'react';
+import {isUserLoggedIn} from "../hooks/api.jsx";
+import { useNavigate } from "react-router-dom";
 
-import {Anchor, Button} from "@mantine/core";
 
 const Home = () => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+
+
+        if(!isUserLoggedIn()){
+            navigate("/login");
+        }
+
+    }, []);
 
     return (
         <>

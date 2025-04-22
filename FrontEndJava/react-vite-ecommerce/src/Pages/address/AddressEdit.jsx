@@ -1,10 +1,11 @@
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {useForm} from '@mantine/form';
 import axios from 'axios';
 import {TextInput, Select, Button, Textarea, Container, Grid, Title, useMantineTheme, Paper} from '@mantine/core';
 import {API_URL} from '../../hooks/api.jsx';
 import {useNavigate, useParams} from 'react-router-dom';
 import {ROUTES} from "../../routes/URLS.jsx";
+import {AuthContext} from "../../GlobalConfig/AuthContext.jsx";
 
 const AddressForm = () => {
     const form = useForm({
@@ -38,25 +39,21 @@ const AddressForm = () => {
         }
     });
 
-    const {id} = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
     const theme = useMantineTheme();
+    // const [token, setToken] = useState(null);
+    const { login, userToken } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchAddress = async () => {
-            const storedUser = localStorage.getItem('userLogin');
-            let userId;
-
-            if (storedUser) {
-                const parsedValue = JSON.parse(storedUser);
-                userId = parsedValue?.id;
-                if (userId) {
-                    form.setFieldValue('person.id', Number(userId));
-                }
-            }
+            if (!userToken) return;
 
             try {
-                const response = await axios.get(`${API_URL}/address/read/${id}`);
+                const response = await axios.get(`${API_URL}/address/read/${id}`, {
+                    headers: { Authorization: `Bearer ${userToken}` },
+                });
+
                 const addressData = response.data;
 
                 form.setValues({
@@ -71,19 +68,16 @@ const AddressForm = () => {
                     country: addressData.country || '',
                     state: addressData.state || '',
                     addressType: addressData.addressType || 'ENTREGA',
-                    person: {
-                        id: userId || '' // Garantir que id seja definido
-                    }
                 });
             } catch (error) {
                 console.error('Erro ao buscar dados do endereço:', error);
             }
         };
 
-        if (id) {
+        if (id && userToken) {
             fetchAddress();
         }
-    }, [id]);
+    }, [id, userToken]);
 
     const getTranslation = (key) => {
         const translations = {
@@ -116,9 +110,9 @@ const AddressForm = () => {
     ];
 
     const handleSubmit = async (values) => {
-        console.log('HANDLE SUBMIT: ' + JSON.stringify(values));
         try {
-            await axios.post(`${API_URL}/address/update/${id}`, values);
+            await axios.post(`${API_URL}/address/update/${id}`, values,
+                {headers: { 'Authorization': `Bearer ${userToken}` }});
             navigate(ROUTES.ADDRESS_LIST);
         } catch (error) {
             console.error('Erro ao atualizar dados do endereço:', error);

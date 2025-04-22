@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button, Container, Grid, Paper, Select, TextInput, Title, useMantineTheme } from "@mantine/core";
 import { DatePicker } from '@mantine/dates';
@@ -6,8 +6,11 @@ import { useForm } from "@mantine/form";
 import axios from 'axios';
 import { ROUTES } from "../../routes/URLS.jsx";
 import { API_URL } from "../../hooks/api.jsx";
+import {AuthContext} from "../../GlobalConfig/AuthContext.jsx";
 
 const CardRegister = () => {
+
+    const { login, userToken } = useContext(AuthContext);
 
     const navigate = useNavigate();
     const theme = useMantineTheme();
@@ -34,17 +37,16 @@ const CardRegister = () => {
     });
 
     const handleSubmit = async (values) => {
-        const storedUser = localStorage.getItem('userLogin');
-        const userID = storedUser ? JSON.parse(storedUser).id : null;
 
-        if (userID) {
+        if (userToken) {
             try {
                 const formattedValues = {
                     ...values,
                     expirationDate: values.expirationDate ? `${values.expirationDate.toISOString().split('T')[0]}T00:00:00` : null,
                 };
 
-                await axios.post(`${API_URL}/card/create/${userID}`, formattedValues);
+                await axios.post(`${API_URL}/card/create`, formattedValues,
+                    {headers: {'Authorization': `Bearer ${userToken}`}}, );
                 navigate(ROUTES.CARD_LIST);
             } catch (error) {
                 console.error('Erro ao cadastrar o cartão!', error);

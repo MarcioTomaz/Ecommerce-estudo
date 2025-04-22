@@ -1,13 +1,15 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {useNavigate} from 'react-router-dom';
-import {Table, ScrollArea, Container, Button, Modal, Group, Text, useMantineTheme} from '@mantine/core';
+import {Button, Container, Group, Modal, Table, Text, useMantineTheme} from '@mantine/core';
 import axios from "axios";
 import {API_URL} from "../../hooks/api.jsx";
 import {ROUTES} from "../../routes/URLS.jsx";
+import {AuthContext} from "../../GlobalConfig/AuthContext.jsx";
 
 
 const AddressList = () => {
-    const [userId, setUserId] = useState(null);
+
+    const { login, userToken } = useContext(AuthContext);
     const [userData, setUserData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -18,20 +20,10 @@ const AddressList = () => {
     const theme = useMantineTheme();
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('userLogin');
-        if (storedUser) {
-            const parsedValue = JSON.parse(storedUser);
-            const userID = parsedValue.id;
-            if (userID) {
-                setUserId(userID);
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        if (userId) {
+        if (userToken) {
             setIsLoading(true);
-            axios.get(`${API_URL}/address/read/address/${userId}`)
+            axios.get(`${API_URL}/address/read/addresses`,
+                {headers: { 'Authorization': `Bearer ${userToken}` }})
                 .then(response => {
                     setUserData(response.data);
                     setIsLoading(false);
@@ -41,7 +33,7 @@ const AddressList = () => {
                     setIsLoading(false);
                 });
         }
-    }, [userId]);
+    }, [userToken]);
 
     const editAddress = (id) => {
         navigate(ROUTES.ADDRESS_UPDATE_ID + `/${id}`)
@@ -53,7 +45,8 @@ const AddressList = () => {
     };
 
     const deleteAddress = () => {
-        axios.delete(`${API_URL}/address/delete/${selectedAddressId}`)
+        axios.delete(`${API_URL}/address/delete/${selectedAddressId}`,
+            {headers: { 'Authorization': `Bearer ${userToken}` }})
             .then(() => {
                 setUserData(userData.filter((address) => address.id !== selectedAddressId));
                 setOpened(false);

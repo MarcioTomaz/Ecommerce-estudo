@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import {useMantineTheme, Table, Container, Button, Modal, Text, Group} from "@mantine/core";
 import axios from "axios";
 import { API_URL } from "../../hooks/api.jsx";
 import { ROUTES } from "../../routes/URLS.jsx";
+import {AuthContext} from "../../GlobalConfig/AuthContext.jsx";
 
 const CardList = () => {
+
+    const { login, userToken } = useContext(AuthContext);
     const [userId, setUserId] = useState(null);
     const [userData, setUserData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -13,26 +16,15 @@ const CardList = () => {
     const [selectedCardId, setSelectedCardId] = useState(null);
     const [opened, setOpened] = useState(false);
 
-
-
     const navigate = useNavigate();
     const theme = useMantineTheme();
 
-    useEffect(() => {
-        const storedUser = localStorage.getItem('userLogin');
-        if (storedUser) {
-            const parsedValue = JSON.parse(storedUser);
-            const userID = parsedValue.id;
-            if (userID) {
-                setUserId(userID);
-            }
-        }
-    }, []);
 
     useEffect(() => {
-        if (userId) {
+        if (userToken) {
             setIsLoading(true);
-            axios.get(`${API_URL}/card/read/card/${userId}`)
+            axios.get(`${API_URL}/card/read/card`,
+                {headers: { 'Authorization': `Bearer ${userToken}` }})
                 .then(response => {
                     setUserData(response.data);
                     setIsLoading(false);
@@ -42,12 +34,25 @@ const CardList = () => {
                     setIsLoading(false);
                 });
         }
-    }, [userId]);
+    }, [userToken]);
 
     const confirmDeleteCard = (id) => {
         setSelectedCardId(id);
         setOpened(true);
-    }
+    };
+
+    const deleteCard = () => {
+        axios.delete(`${API_URL}/card/delete/${selectedCardId}`,
+            {headers:{'Authorization': `Bearer ${userToken}` }})
+            .then(() => {
+                setUserData(userData.filter((card) => card.id !== selectedCardId));
+                setOpened(false);
+            })
+            .catch(error => {
+                setError(error);
+                setOpened(false);
+            });
+    };
 
     const rows = userData.map((row) => (
         <Table.Tr key={row.id}>
@@ -58,23 +63,18 @@ const CardList = () => {
             <Table.Td>{row.holder}</Table.Td>
             <Table.Td>{row.expirationDate}</Table.Td>
             <Table.Td>
-                <Button style={{background: theme.colors.red[9]}}
-                        onClick={() => confirmDeleteCard(row.id)}>Excluir</Button>
+                <Button
+                    id={row.id}
+                    style={{ background: theme.colors.red[9] }}
+                    onClick={() => {
+                        confirmDeleteCard(row.id);
+                    }}
+                >
+                    Excluir
+                </Button>
             </Table.Td>
         </Table.Tr>
     ));
-
-    const deleteCard = () => {
-        axios.delete(`${API_URL}/card/delete/${selectedCardId}`)
-            .then(() => {
-                setUserData(userData.filter((address) => address.id !== selectedCardId));
-                setOpened(false);
-            })
-            .catch(error => {
-                setError(error);
-                setOpened(false);
-            });
-    }
 
     return (
         <Container>

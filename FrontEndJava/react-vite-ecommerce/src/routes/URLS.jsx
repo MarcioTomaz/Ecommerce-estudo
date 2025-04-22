@@ -7,6 +7,8 @@ export const ROUTES = {
     LOGIN: '/login',
     REGISTER: '/register',
 
+    LOGOUT: '/logout',
+
     PROFILE: '/profile',
 
     ADDRESS_REGISTER: '/address/create/',
@@ -20,6 +22,16 @@ export const ROUTES = {
     PRODUCT_DETAILS: '/product/:id',
     PRODUCT_LIST: '/product/list',
     PRODUCT_LIST_STOCK: '/product/read',
+
+    CART_DETAILS: '/cart',
+
+    ORDER_LIST: '/order/list',
+
+    //ORDER
+    CHECKOUT: '/checkout',
+    ORDER_DETAILS:'/order/details/:id',
+    ORDER_PAYMENT: '/order/:id/payment',
+    PAYMENT: '/payment',
 
     //api
     PRODUCT_READ_ID: '/product/read'
