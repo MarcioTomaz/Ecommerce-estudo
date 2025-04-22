@@ -1,13 +1,18 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Anchor, Text, Button, Container, Group, TextInput, Title, Paper } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { useClientLogin } from "../../hooks/client/useClientLogin.jsx";
+import React, {useState, useEffect, useContext} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {Anchor, Text, Button, Container, Group, TextInput, Title, Paper} from "@mantine/core";
+import {useForm} from "@mantine/form";
+import {useClientLogin} from "../../hooks/client/useClientLogin.jsx";
 import classes from './login.module.css';
 import {AuthContext} from "../../GlobalConfig/AuthContext.jsx";
+import {ROUTES} from "../../routes/URLS.jsx";
 
 const Login = () => {
-    const { login, userToken } = useContext(AuthContext);
+    const {login, userToken} = useContext(AuthContext);
+    const {userRole, setUserRole} = useContext(AuthContext);
+    const [errorMessage, setErrorMessage] = useState(null);
+    const {mutate, isError, error} = useClientLogin();
+    const navigate = useNavigate();
 
     const form = useForm({
         mode: 'uncontrolled',
@@ -20,22 +25,17 @@ const Login = () => {
         },
     });
 
-    const [errorMessage, setErrorMessage] = useState(null);
-    const { mutate, isError, error } = useClientLogin();
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (userToken) {
             navigate('/profile');
         }
-    }, [userToken, navigate]);
+    }, [userToken]);
 
     const handleSubmit = (values) => {
         mutate(values, {
             onSuccess: (data) => {
-                login(data.token); // Armazena o token no contexto
-
-                // navigate('/profile');
+                login(data.token, data.role); // Armazena o token no contexto
             },
             onError: (error) => {
                 console.error('Error during mutation:', error);

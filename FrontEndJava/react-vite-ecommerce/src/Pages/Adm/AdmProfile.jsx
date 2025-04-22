@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes/URLS.jsx";
 import {AuthContext} from "../../GlobalConfig/AuthContext.jsx";
 
-const ClientProfile = () => {
+const AdmProfile = () => {
 
     const { login, userToken } = useContext(AuthContext);
     const [userData, setUserData] = useState(null);
@@ -17,30 +17,22 @@ const ClientProfile = () => {
 
     useEffect(() => {
 
-        console.log("to aki")
         axios.get(`${API_URL}/userPerson/readById`, {
             headers: { 'Authorization': `Bearer ${userToken}` }
         })
             .then(response => {
-
-                if (response.data.role === 'ADMIN') {
-                    console.log("entrei aqui 2")
-                    navigate(ROUTES.ADM_PROFILE);
-                }
 
                 // if(response.data)
                 console.log(response.data);
                 setUserData(response.data);
                 setIsLoading(false);
 
-
-
             })
             .catch(error => {
                 setError(error);
                 setIsLoading(false);
             });
-    }, []);
+    }, [userToken]);
 
     const changePage = (page) => {
         navigate(page);
@@ -53,24 +45,23 @@ const ClientProfile = () => {
     return (
         <Container size="md" style={{ marginTop: 40 }}>
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <Title order={2} align="center" style={{ marginBottom: 20 }}>Perfil do Usuário</Title>
+                <Title order={2} align="center" style={{ marginBottom: 20 }}>Perfil Administrador</Title>
                 <Divider my="sm" />
                 <Grid gutter="md">
                     <Grid.Col span={6}><Text><strong>Nome:</strong> {userData?.personDTO.firstName} {userData?.personDTO.lastName}</Text></Grid.Col>
                     <Grid.Col span={6}><Text><strong>Email:</strong> {userData?.email}</Text></Grid.Col>
-                    <Grid.Col span={6}><Text><strong>Data de Nascimento:</strong> {userData?.personDTO.birthDate}</Text></Grid.Col>
-                    <Grid.Col span={6}><Text><strong>Sexo:</strong> {userData?.personDTO.gender}</Text></Grid.Col>
-                    <Grid.Col span={12}><Text><strong>Telefone:</strong> {userData?.personDTO.phoneType}: {userData?.personDTO.phoneNumber}</Text></Grid.Col>
+                    <Grid.Col span={6}><Text><strong>Cargo:</strong> {userData?.role}</Text></Grid.Col>
+                    {/*<Grid.Col span={6}><Text><strong>Data de Nascimento:</strong> {userData?.personDTO.birthDate}</Text></Grid.Col>*/}
+                    {/*<Grid.Col span={6}><Text><strong>Sexo:</strong> {userData?.personDTO.gender}</Text></Grid.Col>*/}
+                    {/*<Grid.Col span={12}><Text><strong>Telefone:</strong> {userData?.personDTO.phoneType}: {userData?.personDTO.phoneNumber}</Text></Grid.Col>*/}
                 </Grid>
                 <Divider my="sm" />
                 <Group position="center" mt="md">
-                    <Button variant="filled" color="cyan" radius="md" onClick={() => changePage(ROUTES.ORDER_LIST)}>Pedidos</Button>
-                    <Button variant="filled" color="cyan" radius="md" onClick={() => changePage(ROUTES.ADDRESS_LIST)}>Endereços</Button>
-                    <Button variant="filled" color="cyan" radius="md" onClick={() => changePage(ROUTES.CARD_LIST)}>Cartões</Button>
+                    <Button variant="filled" color="cyan" radius="md" onClick={() => changePage(ROUTES.ADM_ORDER_LIST)}>Pedidos</Button>
                 </Group>
             </Card>
         </Container>
     );
 };
 
-export default ClientProfile;
+export default AdmProfile;
