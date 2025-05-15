@@ -2,12 +2,14 @@ package com.ec.ecommercev3.Service;
 
 import com.ec.ecommercev3.DTO.Address.AddressAdmDTO;
 import com.ec.ecommercev3.DTO.Comment.CommentDTO;
+import com.ec.ecommercev3.DTO.Filters.OrderFilterDTO;
 import com.ec.ecommercev3.DTO.Order.*;
 import com.ec.ecommercev3.DTO.Payment.CreditCardPaymentDTO;
 import com.ec.ecommercev3.DTO.Payment.PaymentMethodDTO;
 import com.ec.ecommercev3.DTO.Payment.PixPaymentDTO;
 import com.ec.ecommercev3.DTO.PersonDTO;
 import com.ec.ecommercev3.DTO.Product.ProductEditDTO;
+import com.ec.ecommercev3.DTO.UserPerson.UserPersonLOG;
 import com.ec.ecommercev3.Entity.*;
 import com.ec.ecommercev3.Entity.Comment.Comment;
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
@@ -16,20 +18,22 @@ import com.ec.ecommercev3.Entity.Payment.CreditCardPaymentMethod;
 import com.ec.ecommercev3.Entity.Payment.PaymentMethod;
 import com.ec.ecommercev3.Entity.Payment.PixPayment;
 import com.ec.ecommercev3.Repository.*;
+import com.ec.ecommercev3.Repository.Specification.OrderSpecifications;
 import com.ec.ecommercev3.Service.exceptions.OrderCreationException;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import com.ec.ecommercev3.Service.exceptions.RoleUnauthorizedException;
 import com.ec.ecommercev3.Service.exceptions.TotalMismatchException;
+import com.ec.ecommercev3.Service.messaging.OrderKafkaProducer;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,6 +66,13 @@ public class OrderService {
     private CardRepository cardRepository;
     @Autowired
     private PaymentMethodRepository paymentMethodRepository;
+
+    @Autowired
+    private OrderKafkaProducer orderKafkaProducer;
+
+    @Autowired
+    private UserPersonRepository userPersonRepository;
+
 
     @Transactional
     public Order create(OrderStepOneDTO order, UserPerson userPerson) {
@@ -109,6 +120,12 @@ public class OrderService {
 
         try {
             orderRepository.save(newOrder);
+
+            orderKafkaProducer.sendOrderStatus(newOrder.getId(), newOrder.getStatus(),
+
+                    new UserPersonLOG(userPerson.getEmail(), userPerson.getUsername(), userPerson.getId(),
+                            userPerson.getRole()));
+
         } catch (Exception e) {
             throw new OrderCreationException("Erro ao criar o pedido!");
         }
@@ -154,7 +171,12 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow((() -> new ResourceNotFoundException("Pedido não encontrado! ID: " + orderId)));
 
+        UserPerson userPerson = userPersonRepository.findByPerson(order.getPerson());
+
         order.setStatus(OrderStatus.PAID);
+
+        orderKafkaProducer.sendOrderStatus(order.getId(), OrderStatus.PAID,
+                new UserPersonLOG(userPerson.getEmail(), userPerson.getUsername(), userPerson.getId(), userPerson.getRole()));
 
         orderRepository.save(order);
     }
@@ -263,7 +285,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Page<OrderListAdmDTO> findAllOrdersForApprove(UserPerson userPerson, Pageable pageable) {
+    public Page<OrderListAdmDTO> findAllOrdersForApprove(UserPerson userPerson, Pageable pageable, OrderFilterDTO filter) {
 
         boolean isAdmin = userPerson.getAuthorities()
                 .stream()
@@ -272,9 +294,11 @@ public class OrderService {
             throw new RoleUnauthorizedException("Acesso negado!");
         }
 
-        Page<Order> result = orderRepository.findAll(pageable);
+        Specification<Order> spec = OrderSpecifications.byFilter(filter);
 
-        return result.map(order -> new OrderListAdmDTO(order.getId(), order.getStatus(), order.getTotal()));
+        Page<Order> result = orderRepository.findAll(spec, pageable);
+
+        return result.map(order -> new OrderListAdmDTO(order.getId(), order.getStatus(),order.getCreationDate(), order.getTotal()));
     }
 
     @Transactional
@@ -311,6 +335,7 @@ public class OrderService {
 
         if (admOrderManagementDTO.isAccept().equals(true)) {
             orderToAccept.setStatus(OrderStatus.SHIPPED);
+
         } else {
             orderToAccept.setStatus(OrderStatus.CANCELED);
 
@@ -321,5 +346,9 @@ public class OrderService {
         }
 
         orderRepository.save(orderToAccept);
+
+        orderKafkaProducer.sendOrderStatus(orderToAccept.getId(), orderToAccept.getStatus(),
+                new UserPersonLOG(userPerson.getEmail(), userPerson.getUsername(), userPerson.getId(), userPerson.getRole()));
+
     }
 }
