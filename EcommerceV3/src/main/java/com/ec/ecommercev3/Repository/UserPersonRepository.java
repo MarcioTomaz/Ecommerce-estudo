@@ -1,5 +1,6 @@
 package com.ec.ecommercev3.Repository;
 
+import com.ec.ecommercev3.Entity.Person;
 import com.ec.ecommercev3.Entity.UserPerson;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,4 +16,6 @@ public interface UserPersonRepository extends JpaRepository<UserPerson, Long> {
 //    Optional<UserPerson> findByPassword(String password);
 
     Optional<UserPerson> findByIdAndActiveTrue(Long id);
+
+    UserPerson findByPerson(Person person);
 }

@@ -1,9 +1,11 @@
 package com.ec.ecommercev3.Controller;
 
+import com.ec.ecommercev3.DTO.Filters.OrderFilterDTO;
 import com.ec.ecommercev3.DTO.Order.AdmOrderManagementDTO;
 import com.ec.ecommercev3.DTO.Order.OrderAdmDTO;
 import com.ec.ecommercev3.DTO.Order.OrderListAdmDTO;
 import com.ec.ecommercev3.DTO.Order.OrderListDTO;
+import com.ec.ecommercev3.Entity.Enums.OrderStatus;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +27,19 @@ public class AdmController {
 
     @GetMapping("/order/list")
     public ResponseEntity<Page<OrderListAdmDTO>> orderAdmList(@AuthenticationPrincipal UserPerson userPerson,
-                                                              Pageable pageable) {
-        Page<OrderListAdmDTO> result = orderService.findAllOrdersForApprove(userPerson, pageable);
+                                                              Pageable pageable,
+                                                              @ModelAttribute OrderFilterDTO filter  ) {
+        Page<OrderListAdmDTO> result = orderService.findAllOrdersForApprove(userPerson, pageable, filter);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/order/{orderId}")
     public ResponseEntity<OrderAdmDTO> openOrderAdm(@AuthenticationPrincipal UserPerson userPerson,
-                                                    @PathVariable Long orderId) {
+                                                    @PathVariable Long orderId,
+                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "10") int size,
+                                                    @RequestParam(required = false)OrderStatus status) {
 
         OrderAdmDTO result = orderService.findOrderByIdAdm(userPerson, orderId);
 
