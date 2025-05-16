@@ -1,11 +1,10 @@
 import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import { Container, Title, Text, Loader, Alert, Button, Grid, Card, Group, Divider } from '@mantine/core';
-import { API_URL } from "../../../../../../../WebstormProjects/Ecommerce-estudo/FrontEndJava/react-vite-ecommerce/src/hooks/api.jsx";
+import { API_URL } from "../../hooks/api.jsx";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../../../../../../../WebstormProjects/Ecommerce-estudo/FrontEndJava/react-vite-ecommerce/src/routes/URLS.jsx";
-import {AuthContext} from "../../../../../../../WebstormProjects/Ecommerce-estudo/FrontEndJava/react-vite-ecommerce/src/GlobalConfig/AuthContext.jsx";
-
+import { ROUTES } from "../../routes/URLS.jsx";
+import {AuthContext} from "../../GlobalConfig/AuthContext.jsx";
 
 const AdmProfile = () => {
 

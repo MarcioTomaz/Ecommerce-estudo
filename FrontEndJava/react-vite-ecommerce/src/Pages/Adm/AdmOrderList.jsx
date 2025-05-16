@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../../../../../../WebstormProjects/Ecommerce-estudo/FrontEndJava/react-vite-ecommerce/src/GlobalConfig/AuthContext.jsx";
+import { AuthContext } from "../../GlobalConfig/AuthContext.jsx";
 import axios from "axios";
-import { ROUTES as ROTE, ROUTES } from "../../../../../../../WebstormProjects/Ecommerce-estudo/FrontEndJava/react-vite-ecommerce/src/routes/URLS.jsx";
+import { ROUTES as ROTE, ROUTES } from "../../routes/URLS.jsx";
 import {Button, Container, Table, Pagination, Select, useMantineTheme, Group} from "@mantine/core";
-import { API_URL } from "../../../../../../../WebstormProjects/Ecommerce-estudo/FrontEndJava/react-vite-ecommerce/src/hooks/api.jsx";
+import { API_URL } from "../../hooks/api.jsx";
 import { useNavigate } from "react-router-dom";
 
 const AdmOrderList = () => {
@@ -13,6 +13,7 @@ const AdmOrderList = () => {
     const [pageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
     const [statusFilter, setStatusFilter] = useState(null);
+
 
     const navigate = useNavigate();
     const theme = useMantineTheme();
