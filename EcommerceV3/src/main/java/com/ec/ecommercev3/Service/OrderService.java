@@ -35,7 +35,10 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.ec.ecommercev3.Entity.Enums.CommentType.REJECTION_REASON;
 
@@ -73,65 +76,87 @@ public class OrderService {
     @Autowired
     private UserPersonRepository userPersonRepository;
 
+    @Autowired
+    private ProductRepository productRepository;
 
     @Transactional
     public Order create(OrderStepOneDTO order, UserPerson userPerson) {
 
-        Order newOrder = new Order();
+        Address billingAddress = addressRepository
+                .findByIdAndActiveTrue(order.billingAddress())
+                .orElseThrow(() -> new ResourceNotFoundException("Erro! Endereço de cobrança não encontrado"));
+        Address shippingAddress = addressRepository
+                .findByIdAndActiveTrue(order.shippingAddress())
+                .orElseThrow(() -> new ResourceNotFoundException("Erro! Endereço de entrega não encontrado"));
 
-        Address billingAddress = addressRepository.findByIdAndActiveTrue(order.billingAddress())
-                .orElseThrow(() -> new ResourceNotFoundException("Erro! Endereço não encontrado"));
-
-        Address shippingAddress = addressRepository.findByIdAndActiveTrue(order.shippingAddress())
-                .orElseThrow(() -> new ResourceNotFoundException("Erro! Endereço não encontrado"));
-
-        Cart cart = cartRepository.findByUserPersonId(userPerson.getId())
+        Cart cart = cartRepository
+                .findByUserPersonId(userPerson.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Erro! Carrinho não encontrado"));
 
-        //calculando total do pedido
-        Double total = cart.getItems()
-                .stream()
-                .mapToDouble(item -> item.getQuantity() * item.getProduct().getProduct_price())
-                .sum();
-
-        BigDecimal roundedTotal = BigDecimal.valueOf(total).setScale(2, RoundingMode.HALF_UP);
-        double roundedTotalDouble = roundedTotal.doubleValue();
-
+        Order newOrder = new Order();
         newOrder.setPerson(userPerson.getPerson());
-        newOrder.setActive(true);
         newOrder.setBillingAddress(billingAddress);
         newOrder.setShippingAddress(shippingAddress);
-
+        newOrder.setActive(true);
+        newOrder.setStatus(OrderStatus.WAITING_FOR_PAYMENT);
 
         List<Item> orderItems = cart.getItems().stream()
                 .map(cartItem -> new Item(
                         cartItem.getProduct(),
                         cartItem.getQuantity(),
-//                        cartItem.getTotal_value(),
-                        newOrder // Associação com o pedido atual
+                        newOrder
                 ))
-                .toList(); // Cria a nova lista de itens
-
-        // Define a nova lista no pedido
+                .toList();
         newOrder.setOrderItems(orderItems);
 
-        newOrder.setTotal(roundedTotalDouble);
-        newOrder.setStatus(OrderStatus.WAITING_FOR_PAYMENT);
+        // Bulk‑load dos produtos que serão ajustados no estoque
+        List<Long> productIds = orderItems.stream()
+                .map(i -> i.getProduct().getId())
+                .toList();
 
-        try {
-            orderRepository.save(newOrder);
+        List<Product> products = productRepository.findAllById(productIds);
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
 
-            orderKafkaProducer.sendOrderStatus(newOrder.getId(), newOrder.getStatus(),
+        for (Item orderItem : orderItems) {
+            Product product = productMap.get(orderItem.getProduct().getId());
+            Long qtyToDiscount = orderItem.getQuantity();
 
-                    new UserPersonLOG(userPerson.getEmail(), userPerson.getUsername(), userPerson.getId(),
-                            userPerson.getRole()));
-
-        } catch (Exception e) {
-            throw new OrderCreationException("Erro ao criar o pedido!");
+            if (product.getStock() < qtyToDiscount) {
+                throw new IllegalArgumentException(
+                        "Estoque insuficiente para o produto: " + product.getProduct_name());
+            }
+            product.setStock((int) (product.getStock() - qtyToDiscount));
         }
+
+        productRepository.saveAll(products);
+
+        // Calcular total do pedido e salvar order
+        double total = orderItems.stream()
+                .mapToDouble(i -> i.getQuantity() * i.getProduct().getProduct_price())
+                .sum();
+        BigDecimal roundedTotal = BigDecimal.valueOf(total)
+                .setScale(2, RoundingMode.HALF_UP);
+        newOrder.setTotal(roundedTotal.doubleValue());
+
+        orderRepository.save(newOrder);
+
+        // Enviar evento Kafka
+        orderKafkaProducer.sendOrderStatus(
+                newOrder.getId(),
+                newOrder.getStatus(),
+                null,
+                new UserPersonLOG(
+                        userPerson.getEmail(),
+                        userPerson.getUsername(),
+                        userPerson.getId(),
+                        userPerson.getRole()
+                )
+        );
 
         return newOrder;
     }
+
 
     @Transactional
     public List<PaymentMethod> addPaymentOrder(PaymentDTO paymentDTO) {
@@ -175,7 +200,7 @@ public class OrderService {
 
         order.setStatus(OrderStatus.PAID);
 
-        orderKafkaProducer.sendOrderStatus(order.getId(), OrderStatus.PAID,
+        orderKafkaProducer.sendOrderStatus(order.getId(), OrderStatus.PAID, null,
                 new UserPersonLOG(userPerson.getEmail(), userPerson.getUsername(), userPerson.getId(), userPerson.getRole()));
 
         orderRepository.save(order);
@@ -250,7 +275,7 @@ public class OrderService {
                 .toList();
 
         List<CommentDTO> commentDTO = result.getComments().stream()
-                .map( comment -> new CommentDTO(comment.getComment(), comment.getCommentType()))
+                .map(comment -> new CommentDTO(comment.getComment(), comment.getCommentType()))
                 .toList();
 
         // Retornar o DTO preenchido
@@ -263,7 +288,7 @@ public class OrderService {
                 result.getStatus(),
                 paymentMethods,
                 commentDTO
-                );
+        );
     }
 
     @Transactional
@@ -298,7 +323,7 @@ public class OrderService {
 
         Page<Order> result = orderRepository.findAll(spec, pageable);
 
-        return result.map(order -> new OrderListAdmDTO(order.getId(), order.getStatus(),order.getCreationDate(), order.getTotal()));
+        return result.map(order -> new OrderListAdmDTO(order.getId(), order.getStatus(), order.getCreationDate(), order.getTotal()));
     }
 
     @Transactional
@@ -343,12 +368,46 @@ public class OrderService {
                     new Comment(admOrderManagementDTO.reason(),
                             REJECTION_REASON, orderToAccept,
                             userPerson));
+
+            restoreStockQuantity(orderToAccept);
         }
 
         orderRepository.save(orderToAccept);
 
-        orderKafkaProducer.sendOrderStatus(orderToAccept.getId(), orderToAccept.getStatus(),
-                new UserPersonLOG(userPerson.getEmail(), userPerson.getUsername(), userPerson.getId(), userPerson.getRole()));
+        orderKafkaProducer.sendOrderStatus(
+                orderToAccept.getId(),
+                orderToAccept.getStatus(),
+                admOrderManagementDTO.reason(),
+                new UserPersonLOG(
+                        userPerson.getEmail(),
+                        userPerson.getUsername(),
+                        userPerson.getId(),
+                        userPerson.getRole()
+                )
+        );
+    }
 
+    @Transactional
+    public void restoreStockQuantity(Order orderToAccept) {
+
+        List<Long> productsIds = orderToAccept.getOrderItems().stream()
+                .map(i -> i.getProduct().getId()).toList();
+
+        List<Product> products = productRepository.findAllById(productsIds);
+
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        for (Item orderItem : orderToAccept.getOrderItems()) {
+            Product product = productMap.get(orderItem.getProduct().getId());
+            if (product == null) {
+                throw new ResourceNotFoundException(
+                        "Produto ID " + orderItem.getProduct().getId() + " não encontrado para restauração");
+            }
+            Long toRestore = orderItem.getQuantity();
+
+            product.setStock((int) (product.getStock() + toRestore));
+        }
+        productRepository.saveAll(products);
     }
 }

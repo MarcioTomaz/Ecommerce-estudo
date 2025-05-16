@@ -22,11 +22,11 @@ public class OrderKafkaProducer {
 
     private static final String TOPIC = "order.status";
 
-    public void sendOrderStatus(Long orderId, OrderStatus status, UserPersonLOG userPersonLOG) {
+    public void sendOrderStatus(Long orderId, OrderStatus status, String refuseReason, UserPersonLOG userPersonLOG) {
 
         try {
 
-            OrderEvent event = new OrderEvent(orderId, status, userPersonLOG, Instant.now());
+            OrderEvent event = new OrderEvent(orderId, status, refuseReason, userPersonLOG, Instant.now());
             String json = objectMapper.writeValueAsString(event);
             kafkaTemplate.send(TOPIC, orderId.toString(), json);
 
