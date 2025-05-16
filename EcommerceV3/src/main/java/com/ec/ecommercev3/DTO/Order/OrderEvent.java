@@ -9,6 +9,7 @@ import java.time.Instant;
 public record OrderEvent(
         Long orderId,
         OrderStatus status,
+        String refuseReason,
         UserPersonLOG userLog,
         Instant timestamp
 ) {
