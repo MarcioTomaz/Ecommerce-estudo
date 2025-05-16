@@ -9,7 +9,9 @@ import {
     Button,
     Collapse,
     Container,
-    useMantineTheme
+    useMantineTheme,
+    Modal,
+    TextInput
 } from '@mantine/core';
 import React, {useContext, useEffect, useState} from 'react';
 import {AuthContext} from "../../GlobalConfig/AuthContext.jsx";
@@ -17,28 +19,99 @@ import {API_URL} from "../../hooks/api.jsx";
 import axios from "axios";
 import {useNavigate, useParams} from "react-router-dom";
 import {ROUTES} from "../../routes/URLS.jsx";
+import {useDisclosure} from "@mantine/hooks";
 
 const OrderDetails = () => {
     const [itemsOpen, setItemsOpen] = useState(false);
-    const { login, userToken } = useContext(AuthContext);
+    const {login, userToken, userRole} = useContext(AuthContext);
+
+    // Handlers para as modais de aceite e recusa
+    const [openedAccept, acceptHandlers] = useDisclosure(false);
+    const [openedReject, rejectHandlers] = useDisclosure(false);
+
+    // Estado para exibir o campo do motivo da recusa e armazenar o motivo digitado
+    const [isRejectedReasonVisible, setIsRejectedReasonVisible] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState("");
 
     const [orderDetails, setOrderDetails] = useState(null);
-    const { id } = useParams();
+    const {id} = useParams();
     const navigate = useNavigate();
     const theme = useMantineTheme();
 
     useEffect(() => {
-        axios.get(`${API_URL}/order/details/${id}`,
-            {headers:{'Authorization': `Bearer ${userToken}`}})
-            .then(res => {
-                setOrderDetails(res.data);
-                console.log(res.data);
+        console.log("UserRole: ", userRole);
+
+        axios.get(`${API_URL}/order/details/${id}`, {
+            headers: {'Authorization': `Bearer ${userToken}`}
+        }).then(res => {
+            setOrderDetails(res.data);
+            console.log(res.data);
+        });
+    }, [id, userToken, userRole]);
+
+    const handleOrderAcceptance = () => {
+
+        // alert("Pedido aceito");
+
+        try {
+
+            const payload = {
+                orderId: id,
+                isAccept: true,
+                reason: null
+            }
+
+            axios.post(`${API_URL}/adm/order/accept`, payload,
+                {headers: {'Authorization': `Bearer ${userToken}`}})
+                .then(res => {
+                    navigate(ROUTES.ADM_ORDER_LIST);
+
+                }).catch(err => {
+                console.log(err);
             })
-    }, [id, userToken]);
+        } catch (err) {
+            console.log(err);
+        } finally {
+            acceptHandlers.close();
+        }
+
+    };
+
+    const handleRejectClick = () => {
+        // Exibe o campo para escrever o motivo da recusa
+        setIsRejectedReasonVisible(true);
+    };
+
+    const handleSubmitRejection = () => {
+
+        console.log("Motivo da recusa:", rejectionReason);
+        setIsRejectedReasonVisible(false);
+
+        try {
+            const payload = {
+                orderId: id,
+                isAccept: false,
+                reason: rejectionReason
+            }
+
+            axios.post(`${API_URL}/adm/order/accept`, payload,
+                {headers: {'Authorization': `Bearer ${userToken}`}})
+                .then(res => {
+                    navigate(ROUTES.ADM_ORDER_LIST);
+                }).catch(err => {
+                console.log(err);
+            })
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            rejectHandlers.close();
+        }
+
+    };
 
     return (
         <Container size="md" style={{marginTop: 40}}>
-
             <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Title order={2}>Detalhes do Pedido</Title>
                 <Divider my="sm"/>
@@ -98,20 +171,167 @@ const OrderDetails = () => {
 
                 {/* Pagamento */}
                 <Title order={4}>Pagamento</Title>
-
-                {orderDetails?.status !== 'PAID' ? <Button onClick={() => navigate(`/order/${id}/payment`)} type="button" >Ir para pagamento</Button> : ''}
-
+                {orderDetails?.status === 'WAITING_FOR_PAYMENT'
+                    ? <Button onClick={() => navigate(`/order/${id}/payment`)} type="button">
+                        Ir para pagamento
+                    </Button>
+                    : ''
+                }
                 <Text>Total: R$ {orderDetails?.cart.toFixed(2)}</Text>
                 <Group>
                     <Text>Método: {orderDetails?.paymentMethods[0]?.type}</Text>
-                    <Badge color={orderDetails?.status === 'PAID' ? 'green' : 'red'}>{orderDetails?.status}</Badge>
+                    <Badge color={orderDetails?.status === 'PAID' ? 'green' : 'red'}>
+                        {orderDetails?.status}
+                    </Badge>
                 </Group>
+                <Divider my="sm"/>
+                {orderDetails?.status === 'CANCELED' && (
+                    <Group>
+                        <Divider my="sm"/>
+
+                        <Grid>
+                            <Grid.Col span={12}>
+                                <Title order={3} style={{color: theme.colors.red[5]}}
+                                >Pedido cancelado veja o motivo abaixo!</Title>
+                            </Grid.Col>
+                            <Grid.Col span={12}>
+                                {orderDetails.comments.map((c, index)=> <Text key={index}>{c.comment}</Text>)}
+                            </Grid.Col>
+                        </Grid>
+
+                    </Group>
+                )}
+
+
+                <Divider my="sm"/>
+
+                {userRole === 'admin' && (
+                    <Grid>
+                        {/* Modal de Aceitação */}
+                        <Modal
+                            opened={openedAccept}
+                            onClose={acceptHandlers.close}
+                            title="Analisando Pedido"
+                        >
+                            Deseja aceitar o pedido e enviá-lo para entrega?
+                            <Group mt="md" spacing="md">
+                                <Button
+                                    variant="filled"
+                                    style={{background: theme.colors.green[5]}}
+                                    onClick={handleOrderAcceptance}
+                                >
+                                    Aceitar
+                                </Button>
+                                <Button
+                                    variant="filled"
+                                    style={{background: theme.colors.gray[5]}}
+                                    onClick={acceptHandlers.close}
+                                >
+                                    Cancelar
+                                </Button>
+                            </Group>
+                        </Modal>
+
+                        {/* Modal de Recusa */}
+                        <Modal
+                            opened={openedReject}
+                            onClose={() => {
+                                setIsRejectedReasonVisible(false);
+                                rejectHandlers.close();
+                            }}
+                            title="Analisando Pedido"
+                        >
+                            {!isRejectedReasonVisible ? (
+                                <>
+                                    Deseja recusar o pedido?
+                                    <Group mt="md" spacing="md">
+                                        <Button
+                                            variant="filled"
+                                            style={{background: theme.colors.red[5]}}
+                                            onClick={handleRejectClick}
+                                        >
+                                            Adicionar Motivo
+                                        </Button>
+                                        <Button
+                                            variant="filled"
+                                            style={{background: theme.colors.gray[5]}}
+                                            onClick={rejectHandlers.close}
+                                        >
+                                            Cancelar
+                                        </Button>
+                                    </Group>
+                                </>
+                            ) : (
+                                <>
+                                    <Text>Informe o motivo da recusa:</Text>
+                                    <TextInput
+                                        placeholder="Motivo da recusa"
+                                        value={rejectionReason}
+                                        onChange={(e) => setRejectionReason(e.target.value)}
+                                    />
+                                    <Group mt="md" spacing="md">
+                                        <Button
+                                            variant="filled"
+                                            style={{background: theme.colors.red[5]}}
+                                            onClick={handleSubmitRejection}
+                                        >
+                                            Enviar
+                                        </Button>
+                                        <Button
+                                            variant="filled"
+                                            style={{background: theme.colors.gray[5]}}
+                                            onClick={() => {
+                                                setIsRejectedReasonVisible(false);
+                                                rejectHandlers.close();
+                                                setRejectionReason("");
+                                            }}
+                                        >
+                                            Cancelar
+                                        </Button>
+                                    </Group>
+                                </>
+                            )}
+                        </Modal>
+
+                        {/* Botões de Ação */}
+                        {orderDetails?.status === 'PAID' && (
+                            <Grid.Col span={12}>
+                                <Title order={4}>Aceitar pedido e enviar?</Title>
+                                <Grid mt="md">
+                                    <Grid.Col span={6}>
+                                        <Button
+                                            variant="filled"
+                                            fullWidth
+                                            style={{background: theme.colors.green[5]}}
+                                            onClick={acceptHandlers.open}
+                                        >
+                                            Aceitar Pedido
+                                        </Button>
+                                    </Grid.Col>
+                                    <Grid.Col span={6}>
+                                        <Button
+                                            variant="filled"
+                                            fullWidth
+                                            style={{background: theme.colors.red[5]}}
+                                            onClick={rejectHandlers.open}
+                                        >
+                                            Recusar Pedido
+                                        </Button>
+                                    </Grid.Col>
+                                </Grid>
+                            </Grid.Col>
+                        )}
+
+                    </Grid>
+                )}
             </Card>
             <Button
                 style={{background: theme.colors.yellow[9]}}
-                onClick={() => navigate(ROUTES.PROFILE)}
+                onClick={() => navigate(-1)}
                 type="button"
-                mt="md">Voltar
+                mt="md"
+            >
+                Voltar
             </Button>
         </Container>
     );

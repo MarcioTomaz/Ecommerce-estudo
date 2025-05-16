@@ -1,5 +1,3 @@
-
-
 export const ROUTES = {
     HOME: '/',
     HOME_ALT: '/home',
@@ -34,6 +32,10 @@ export const ROUTES = {
     PAYMENT: '/payment',
 
     //api
-    PRODUCT_READ_ID: '/product/read'
+    PRODUCT_READ_ID: '/product/read',
+
+    ////
+    ADM_PROFILE: '/adm/profile',
+    ADM_ORDER_LIST: '/adm/order/list',
 
 };
