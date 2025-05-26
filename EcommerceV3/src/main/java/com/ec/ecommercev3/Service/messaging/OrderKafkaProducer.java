@@ -3,15 +3,12 @@ package com.ec.ecommercev3.Service.messaging;
 import com.ec.ecommercev3.DTO.Order.OrderEvent;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonLOG;
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
-import com.ec.ecommercev3.Entity.UserPerson;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
