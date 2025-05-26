@@ -1,18 +1,23 @@
 package com.ec.ecommercev3.Service;
 
+import com.ec.ecommercev3.DTO.Filters.ProductFilters;
 import com.ec.ecommercev3.DTO.Product.ProductEditDTO;
 import com.ec.ecommercev3.DTO.Product.ProductEditStockDTO;
 import com.ec.ecommercev3.DTO.Product.ProductInsertDTO;
+import com.ec.ecommercev3.DTO.Product.ProductListDTO;
 import com.ec.ecommercev3.Entity.Product;
 import com.ec.ecommercev3.Repository.ProductRepository;
+import com.ec.ecommercev3.Repository.Specification.ProductSpefications;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class ProductService {
@@ -78,10 +83,17 @@ public class ProductService {
     }
 
     @Transactional
-    public List<Product> readAllProductsForSale() {
+    public Page<ProductListDTO> readAllProductsForSale(Pageable pageable, ProductFilters filters) {
 
-        return productRepository.findByStockGreaterThanAndActiveTrue(0);
+
+        Specification<Product> spec = ProductSpefications.byFilter(filters);
+
+        Page<Product> result = productRepository.findAll(spec, pageable);
+
+        return result.map( r -> new ProductListDTO(r.getId(), r.getProduct_name(), r.getProduct_description(),
+                r.getProduct_price(), r.getProductCategory(), r.getCurrency(), r.getStock()));
     }
+
 
     @Transactional
     public Product readById(Long productId) {

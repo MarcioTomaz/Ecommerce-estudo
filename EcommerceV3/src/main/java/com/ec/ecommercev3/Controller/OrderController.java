@@ -1,6 +1,7 @@
 package com.ec.ecommercev3.Controller;
 
 
+import com.ec.ecommercev3.DTO.Filters.OrderFilterDTO;
 import com.ec.ecommercev3.DTO.Order.*;
 import com.ec.ecommercev3.Entity.Order;
 import com.ec.ecommercev3.Entity.Payment.PaymentMethod;
@@ -33,7 +34,7 @@ public class OrderController {
     }
 
     @PostMapping("/{orderId}/payment")
-    public ResponseEntity <List<PaymentMethod>> orderStep2(@RequestBody PaymentDTO paymentDTO) {
+    public ResponseEntity<List<PaymentMethod>> orderStep2(@RequestBody PaymentDTO paymentDTO) {
 
         orderService.addPaymentOrder(paymentDTO);
 
@@ -42,9 +43,10 @@ public class OrderController {
 
     @GetMapping("/list")
     public ResponseEntity<Page<OrderListDTO>> orderList(@AuthenticationPrincipal UserPerson userPerson,
-                                                        Pageable pageable) {
+                                                        Pageable pageable,
+                                                        @ModelAttribute OrderFilterDTO filter) {
 
-        Page<OrderListDTO> result = orderService.findAllClientOrders(userPerson, pageable);
+        Page<OrderListDTO> result = orderService.findAllClientOrders(userPerson, pageable, filter);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

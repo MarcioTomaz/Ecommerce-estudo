@@ -1,17 +1,20 @@
 package com.ec.ecommercev3.Controller;
 
+import com.ec.ecommercev3.DTO.Filters.ProductFilters;
 import com.ec.ecommercev3.DTO.Product.ProductEditDTO;
 import com.ec.ecommercev3.DTO.Product.ProductEditStockDTO;
 import com.ec.ecommercev3.DTO.Product.ProductInsertDTO;
+import com.ec.ecommercev3.DTO.Product.ProductListDTO;
 import com.ec.ecommercev3.Entity.Product;
 import com.ec.ecommercev3.Service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -29,9 +32,10 @@ public class ProductController {
     }
 
     @GetMapping("/read")
-    public ResponseEntity<List<Product>> readAllProduct() {
+    public ResponseEntity<Page<ProductListDTO>> readAllProduct(Pageable pageable,
+                                                        @ModelAttribute ProductFilters filters) {
 
-        List<Product> result = productService.readAllProductsForSale();
+        Page<ProductListDTO> result = productService.readAllProductsForSale(pageable, filters);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

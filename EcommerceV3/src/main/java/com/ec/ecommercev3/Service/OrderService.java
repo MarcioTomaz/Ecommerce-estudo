@@ -19,7 +19,6 @@ import com.ec.ecommercev3.Entity.Payment.PaymentMethod;
 import com.ec.ecommercev3.Entity.Payment.PixPayment;
 import com.ec.ecommercev3.Repository.*;
 import com.ec.ecommercev3.Repository.Specification.OrderSpecifications;
-import com.ec.ecommercev3.Service.exceptions.OrderCreationException;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import com.ec.ecommercev3.Service.exceptions.RoleUnauthorizedException;
 import com.ec.ecommercev3.Service.exceptions.TotalMismatchException;
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.ec.ecommercev3.Entity.Enums.CommentType.REJECTION_REASON;
 
@@ -245,12 +243,13 @@ public class OrderService {
     }
 
     @Transactional
-    public Page<OrderListDTO> findAllClientOrders(UserPerson userPerson, Pageable pageable) {
+    public Page<OrderListDTO> findAllClientOrders(UserPerson userPerson, Pageable pageable, OrderFilterDTO filter) {
 
-        Page<OrderListDTO> orderListDTO = orderRepository
-                .findAllByPersonId(userPerson.getId(), pageable);
+        Specification<Order> spec = OrderSpecifications.byFilter(filter);
 
-        return orderListDTO;
+        Page<Order> result = orderRepository.findAll(spec, pageable);
+
+        return result.map(order -> new OrderListDTO(order.getId(), order.getStatus(), order.getCreationDate(), order.getTotal()));
     }
 
     @Transactional
