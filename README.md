@@ -35,7 +35,7 @@ Repositório: [Ecommerce-Frontend-React](https://github.com/MarcioTomaz/Ecommerc
 
 ## 📦 Tecnologias Utilizadas
 
-* **Java 17**
+* **Java 21**
 * **Spring Boot**
 * **Apache Kafka**
 * **MongoDB**
