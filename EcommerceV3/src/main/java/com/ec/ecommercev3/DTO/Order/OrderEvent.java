@@ -1,8 +1,9 @@
 package com.ec.ecommercev3.DTO.Order;
 
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonLOG;
+import com.ec.ecommercev3.Entity.Enums.AlteredByType;
+import com.ec.ecommercev3.Entity.Enums.ExecutionType;
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
-import com.ec.ecommercev3.Entity.UserPerson;
 
 import java.time.Instant;
 
@@ -11,6 +12,8 @@ public record OrderEvent(
         OrderStatus status,
         String refuseReason,
         UserPersonLOG userLog,
-        Instant timestamp
+        Instant timestamp,
+        AlteredByType alteredByType,
+        ExecutionType executionType
 ) {
 }

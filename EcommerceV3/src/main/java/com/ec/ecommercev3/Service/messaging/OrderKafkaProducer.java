@@ -2,6 +2,8 @@ package com.ec.ecommercev3.Service.messaging;
 
 import com.ec.ecommercev3.DTO.Order.OrderEvent;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonLOG;
+import com.ec.ecommercev3.Entity.Enums.AlteredByType;
+import com.ec.ecommercev3.Entity.Enums.ExecutionType;
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,12 +21,22 @@ public class OrderKafkaProducer {
 
     private static final String TOPIC = "order.status";
 
-    public void sendOrderStatus(Long orderId, OrderStatus status, String refuseReason, UserPersonLOG userPersonLOG) {
+    public void sendOrderStatus(
+            Long orderId,
+            OrderStatus status,
+            String refuseReason,
+            UserPersonLOG userPersonLOG,
+            AlteredByType alteredByType,
+            ExecutionType executionType
+    ) {
 
         try {
 
-            OrderEvent event = new OrderEvent(orderId, status, refuseReason, userPersonLOG, Instant.now());
+            OrderEvent event = new OrderEvent(orderId, status, refuseReason, userPersonLOG, Instant.now(),
+                    alteredByType, executionType);
+
             String json = objectMapper.writeValueAsString(event);
+
             kafkaTemplate.send(TOPIC, orderId.toString(), json);
 
         }catch (JsonProcessingException e ){

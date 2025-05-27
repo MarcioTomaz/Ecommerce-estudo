@@ -12,6 +12,8 @@ import com.ec.ecommercev3.DTO.Product.ProductEditDTO;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonLOG;
 import com.ec.ecommercev3.Entity.*;
 import com.ec.ecommercev3.Entity.Comment.Comment;
+import com.ec.ecommercev3.Entity.Enums.AlteredByType;
+import com.ec.ecommercev3.Entity.Enums.ExecutionType;
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
 import com.ec.ecommercev3.Entity.Payment.Card;
 import com.ec.ecommercev3.Entity.Payment.CreditCardPaymentMethod;
@@ -149,7 +151,9 @@ public class OrderService {
                         userPerson.getUsername(),
                         userPerson.getId(),
                         userPerson.getRole()
-                )
+                ),
+                AlteredByType.USER,
+                ExecutionType.MANUAL
         );
 
         return newOrder;
@@ -199,7 +203,8 @@ public class OrderService {
         order.setStatus(OrderStatus.PAID);
 
         orderKafkaProducer.sendOrderStatus(order.getId(), OrderStatus.PAID, null,
-                new UserPersonLOG(userPerson.getEmail(), userPerson.getUsername(), userPerson.getId(), userPerson.getRole()));
+                new UserPersonLOG(userPerson.getEmail(), userPerson.getUsername(), userPerson.getId(),
+                        userPerson.getRole()), AlteredByType.USER, ExecutionType.MANUAL);
 
         orderRepository.save(order);
     }
@@ -382,7 +387,9 @@ public class OrderService {
                         userPerson.getUsername(),
                         userPerson.getId(),
                         userPerson.getRole()
-                )
+                ),
+                AlteredByType.USER,
+                ExecutionType.MANUAL
         );
     }
 
