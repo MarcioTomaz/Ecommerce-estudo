@@ -2,10 +2,10 @@ package com.ec.ecommercev3.DTO.Order;
 
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record OrderListAdmDTO(Long id,
                               OrderStatus status,
-                              LocalDate orderDate,
+                              LocalDateTime orderDate,
                               Double total) {
 }

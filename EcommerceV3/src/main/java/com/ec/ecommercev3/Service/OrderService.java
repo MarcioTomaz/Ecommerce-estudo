@@ -26,6 +26,7 @@ import com.ec.ecommercev3.Service.exceptions.RoleUnauthorizedException;
 import com.ec.ecommercev3.Service.exceptions.TotalMismatchException;
 import com.ec.ecommercev3.Service.messaging.OrderKafkaProducer;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,6 +36,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -42,6 +46,7 @@ import java.util.stream.Collectors;
 
 import static com.ec.ecommercev3.Entity.Enums.CommentType.REJECTION_REASON;
 
+@Slf4j
 @Service
 public class OrderService {
 
@@ -415,5 +420,33 @@ public class OrderService {
             product.setStock((int) (product.getStock() + toRestore));
         }
         productRepository.saveAll(products);
+    }
+
+    @Transactional
+    public void expireOrdersIfNeeded() {
+        Instant now = Instant.now();
+
+        List<Order> orders = orderRepository.findByStatus(OrderStatus.WAITING_FOR_PAYMENT);
+
+        orders.forEach(order -> {
+
+            Duration time = Duration.between(order.getCreationDate(), LocalDateTime.now());
+
+            if (time.toMinutes() >= 30) {
+                log.info("Expirando pedido {} após {} minutos", order.getId(), time.toMinutes());
+                order.setStatus(OrderStatus.EXPIRED);
+                orderRepository.save(order);
+                orderKafkaProducer.sendOrderStatus(
+                        order.getId(),
+                        OrderStatus.EXPIRED,
+                        "Expired due to payment not received in time",
+                        null,
+                        AlteredByType.SYSTEM,
+                        ExecutionType.AUTOMATIC
+                );
+            }
+
+            restoreStockQuantity(order);
+        });
     }
 }

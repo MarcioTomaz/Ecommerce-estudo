@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -29,7 +28,7 @@ public abstract class DomainEntity implements Serializable {
     private boolean active = true;
 
     @Column(name = "creation_date", nullable = false)
-    private LocalDate creationDate = LocalDate.now();
+    private LocalDateTime creationDate = LocalDateTime.now();
 
     @Column(name = "deleted_date")
     private LocalDateTime deletedDate;
@@ -44,5 +43,5 @@ public abstract class DomainEntity implements Serializable {
         this.id = id;
     }
 
-    public DomainEntity(LocalDate localDate) {this.creationDate = localDate;}
+    public DomainEntity(LocalDateTime localDate) {this.creationDate = localDate;}
 }
