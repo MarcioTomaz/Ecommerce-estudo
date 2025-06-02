@@ -31,18 +31,10 @@ Repositório: [Ecommerce-Frontend-React](https://github.com/MarcioTomaz/Ecommerc
 
 ## 📦 Tecnologias Utilizadas
 
-* **Java 17**
+* **Java 21**
 * **Spring Boot**
 * **Apache Kafka**
 * **MongoDB**
 * **Docker** (para ambientes de desenvolvimento)
 * **React** (no frontend)
 * **Vite** (no frontend)
-
-## 🚀 Como Executar o Projeto
-
-1. **Clone este repositório:**
-
-   ```bash
-   git clone https://github.com/MarcioTomaz/Ecommerce-estudo.git
-   ```
