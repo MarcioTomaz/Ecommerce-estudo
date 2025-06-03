@@ -21,7 +21,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             "UPDATE _product SET stock = stock + :stockQuantityDiscount WHERE id = :productId")
     void updateStock(
             @Param("productId") Long productId,
-            @Param("stockQuantityDiscount") Integer stockQuantityDiscount);
+            @Param("stockQuantityDiscount") Long stockQuantityDiscount);
 
 
 

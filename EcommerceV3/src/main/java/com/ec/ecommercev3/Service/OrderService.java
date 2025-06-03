@@ -3,6 +3,7 @@ package com.ec.ecommercev3.Service;
 import com.ec.ecommercev3.DTO.Address.AddressAdmDTO;
 import com.ec.ecommercev3.DTO.Comment.CommentDTO;
 import com.ec.ecommercev3.DTO.Filters.OrderFilterDTO;
+import com.ec.ecommercev3.DTO.Notification.NotificationEvent;
 import com.ec.ecommercev3.DTO.Order.*;
 import com.ec.ecommercev3.DTO.Payment.CreditCardPaymentDTO;
 import com.ec.ecommercev3.DTO.Payment.PaymentMethodDTO;
@@ -12,9 +13,7 @@ import com.ec.ecommercev3.DTO.Product.ProductEditDTO;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonLOG;
 import com.ec.ecommercev3.Entity.*;
 import com.ec.ecommercev3.Entity.Comment.Comment;
-import com.ec.ecommercev3.Entity.Enums.AlteredByType;
-import com.ec.ecommercev3.Entity.Enums.ExecutionType;
-import com.ec.ecommercev3.Entity.Enums.OrderStatus;
+import com.ec.ecommercev3.Entity.Enums.*;
 import com.ec.ecommercev3.Entity.Payment.Card;
 import com.ec.ecommercev3.Entity.Payment.CreditCardPaymentMethod;
 import com.ec.ecommercev3.Entity.Payment.PaymentMethod;
@@ -24,6 +23,7 @@ import com.ec.ecommercev3.Repository.Specification.OrderSpecifications;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import com.ec.ecommercev3.Service.exceptions.RoleUnauthorizedException;
 import com.ec.ecommercev3.Service.exceptions.TotalMismatchException;
+import com.ec.ecommercev3.Service.messaging.NotificationKafkaProducer;
 import com.ec.ecommercev3.Service.messaging.OrderKafkaProducer;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -39,12 +39,14 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.ec.ecommercev3.Entity.Enums.CommentType.REJECTION_REASON;
+import static org.yaml.snakeyaml.nodes.Tag.STR;
 
 @Slf4j
 @Service
@@ -77,6 +79,9 @@ public class OrderService {
 
     @Autowired
     private OrderKafkaProducer orderKafkaProducer;
+
+    @Autowired
+    private NotificationKafkaProducer notificationKafkaProducer;
 
     @Autowired
     private UserPersonRepository userPersonRepository;
@@ -370,6 +375,19 @@ public class OrderService {
         if (admOrderManagementDTO.isAccept().equals(true)) {
             orderToAccept.setStatus(OrderStatus.SHIPPED);
 
+            notificationKafkaProducer.sendNotification(
+                    new NotificationEvent(
+                            orderToAccept.getPerson().getId(),
+                            "Pedido aprovado e enviado!",
+                            "O pedido #" + orderToAccept.getId() + " Foi enviado!",
+                            false,
+                            NotificationType.ORDER_UPDATE,
+                            orderToAccept.getId(),
+                            ReferenceType.ORDER,
+                            Instant.now()
+                    )
+            );
+
         } else {
             orderToAccept.setStatus(OrderStatus.CANCELED);
 
@@ -377,6 +395,19 @@ public class OrderService {
                     new Comment(admOrderManagementDTO.reason(),
                             REJECTION_REASON, orderToAccept,
                             userPerson));
+
+            notificationKafkaProducer.sendNotification(
+                    new NotificationEvent(
+                            orderToAccept.getPerson().getId(),
+                            "Pedido recusado! ",
+                            "O pedido #" + orderToAccept.getId() + " Foi cancelado! Motivo: " + admOrderManagementDTO.reason(),
+                            false,
+                            NotificationType.ORDER_UPDATE,
+                            orderToAccept.getId(),
+                            ReferenceType.ORDER,
+                            Instant.now()
+                    )
+            );
 
             restoreStockQuantity(orderToAccept);
         }
@@ -435,6 +466,12 @@ public class OrderService {
             if (time.toMinutes() >= 30) {
                 log.info("Expirando pedido {} após {} minutos", order.getId(), time.toMinutes());
                 order.setStatus(OrderStatus.EXPIRED);
+
+                order.getComments().add(
+                        new Comment("Pedido Expirado por falta de pagamento",
+                                REJECTION_REASON, order, null
+                        ));
+
                 orderRepository.save(order);
                 orderKafkaProducer.sendOrderStatus(
                         order.getId(),
@@ -444,9 +481,23 @@ public class OrderService {
                         AlteredByType.SYSTEM,
                         ExecutionType.AUTOMATIC
                 );
+
+                notificationKafkaProducer.sendNotification(
+                        new NotificationEvent(
+                                order.getPerson().getId(),
+                                "Pedido Expirado! ",
+                                "O pedido #" + order.getId() + " Foi Expirado! Motivo: Falta de pagamento",
+                                false,
+                                NotificationType.ORDER_UPDATE,
+                                order.getId(),
+                                ReferenceType.ORDER,
+                                Instant.now()
+                        )
+                );
+
+                restoreStockQuantity(order);
             }
 
-            restoreStockQuantity(order);
         });
     }
 }

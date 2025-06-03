@@ -14,6 +14,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ProductEditStockDTO extends DomainEntity {
 
-    @NotNull
-    private Integer stock_quantity_discount;
+    private Long stock_quantity_discount;
 }

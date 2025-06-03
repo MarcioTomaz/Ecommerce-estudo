@@ -1,14 +1,14 @@
 package com.ec.ecommercev3.Service;
 
 import com.ec.ecommercev3.DTO.Filters.ProductFilters;
-import com.ec.ecommercev3.DTO.Product.ProductEditDTO;
-import com.ec.ecommercev3.DTO.Product.ProductEditStockDTO;
-import com.ec.ecommercev3.DTO.Product.ProductInsertDTO;
-import com.ec.ecommercev3.DTO.Product.ProductListDTO;
+import com.ec.ecommercev3.DTO.Product.*;
 import com.ec.ecommercev3.Entity.Product;
+import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Repository.ProductRepository;
 import com.ec.ecommercev3.Repository.Specification.ProductSpefications;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
+import com.ec.ecommercev3.Service.messaging.ProductAvailabilityRequestProducer;
+import com.ec.ecommercev3.Service.messaging.ProductStockUpdateProducer;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -28,12 +29,18 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ProductAvailabilityRequestProducer productAvailabilityRequestProducer;
+
+    @Autowired
+    private ProductStockUpdateProducer productStockUpdateProducer;
+
     public Product create(ProductInsertDTO productInsertDTO) {
         Product product = modelMapper.map(productInsertDTO, Product.class);
 
         try {
             productRepository.save(product);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -41,7 +48,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Product update(Long productId, ProductEditDTO productEditDTO){
+    public Product update(Long productId, ProductEditDTO productEditDTO) {
         Product oldProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
@@ -50,30 +57,40 @@ public class ProductService {
 
         oldProduct.setUpdatedDate(LocalDateTime.now());
 
-       return productRepository.save(oldProduct);
+        return productRepository.save(oldProduct);
     }
 
     @Transactional
-    public Product updateStock(Long productId, ProductEditStockDTO productEditStockDTO) {
+    public Product updateStock(Long productId, ProductEditStockDTO productEditStockDTO, UserPerson user) {
 
-        Product product;
-        // Verifica se o produto existe
-        product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        try {
+            Product product;
+            product = productRepository.findById(productId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
-        // Atualiza o estoque se o produto existir
-        productRepository.updateStock(productId, productEditStockDTO.getStock_quantity_discount());
+            if(product.getStock().equals(0)){
+                productStockUpdateProducer.productStockUpdate(
+                        new ProductStockUpdateDTO(user.getId(), productId, productEditStockDTO.getStock_quantity_discount())
+                );
+            }
 
-        // Recarrega o produto do banco de dados para obter os valores atualizados
-        product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+            productRepository.updateStock(productId, productEditStockDTO.getStock_quantity_discount());
 
-        // Retorna o produto atualizado
-        return product; /// ARRUMAR O RETORNO Q ESTA DESATUALIZADO
+            product = productRepository.findById(productId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+
+
+
+            return product;
+        }catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     @Transactional
-    public void delete(Long productId){
+    public void delete(Long productId) {
 
         Product result = productRepository.findByIdAndActiveTrue(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
@@ -90,7 +107,7 @@ public class ProductService {
 
         Page<Product> result = productRepository.findAll(spec, pageable);
 
-        return result.map( r -> new ProductListDTO(r.getId(), r.getProduct_name(), r.getProduct_description(),
+        return result.map(r -> new ProductListDTO(r.getId(), r.getProduct_name(), r.getProduct_description(),
                 r.getProduct_price(), r.getProductCategory(), r.getCurrency(), r.getStock()));
     }
 
@@ -100,8 +117,26 @@ public class ProductService {
         Product product;
 
         product = productRepository.findByIdAndActiveTrue(productId)
-                .orElseThrow( () -> new ResourceNotFoundException("Produto não encontrado!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado!"));
 
         return product;
+    }
+
+    @Transactional
+    public void productRequest(UserPerson userPerson, ProductAvailabilityRequestDTO dto) {
+
+        try {
+            Optional<Product> result = productRepository.findById(dto.productId());
+
+            if (result.isEmpty()) {
+                throw new ResourceNotFoundException("Produto não encontrado!");
+            }
+
+            productAvailabilityRequestProducer
+                    .sendProductAvailabilityRequest(dto);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -13,7 +13,7 @@ public class OrderExpirationService {
     @Autowired
     private OrderService orderService;
 
-    @Scheduled(fixedRate = 100000)
+    @Scheduled(fixedRate = 300000)
     public void verifyOrderExpiration() {
 
         orderService.expireOrdersIfNeeded();
