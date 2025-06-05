@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
 @Getter
 @Setter
 
@@ -17,9 +16,9 @@ import java.util.List;
 @DiscriminatorColumn(name = "payment_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class PaymentMethod extends DomainEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
 
     private Double amountPaid;
 

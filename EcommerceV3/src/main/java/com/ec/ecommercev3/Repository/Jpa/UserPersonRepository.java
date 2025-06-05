@@ -1,4 +1,4 @@
-package com.ec.ecommercev3.Repository;
+package com.ec.ecommercev3.Repository.Jpa;
 
 import com.ec.ecommercev3.Entity.Person;
 import com.ec.ecommercev3.Entity.UserPerson;

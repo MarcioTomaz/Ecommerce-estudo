@@ -4,34 +4,30 @@ import com.ec.ecommercev3.Entity.Enums.NotificationType;
 import com.ec.ecommercev3.Entity.Enums.ReferenceType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
-
-@Entity
+@Document(collection = "notification")
 @Table
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Notification extends DomainEntity{
+public class Notification {
 
+    @Id
+    private String id;
+
+    private Long userId;
     private String title;
-
-    @Column(columnDefinition = "TEXT")
     private String message;
-
-    private Boolean isRead = false;
-
-    private LocalDateTime readAt;
-
+    private Boolean isRead;
     private NotificationType type;
 
     private Long referenceId; // ex: orderId
     private ReferenceType referenceType;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private UserPerson user;
+    private Instant timestamp;
 
 }

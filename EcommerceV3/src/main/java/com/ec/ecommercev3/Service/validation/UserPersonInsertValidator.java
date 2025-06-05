@@ -1,10 +1,8 @@
 package com.ec.ecommercev3.Service.validation;
 
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonInsertDTO;
-import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Exception.FieldMessage;
-import com.ec.ecommercev3.Repository.UserPersonRepository;
-import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
+import com.ec.ecommercev3.Repository.Jpa.UserPersonRepository;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;

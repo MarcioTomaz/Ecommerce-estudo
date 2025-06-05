@@ -18,7 +18,7 @@ import com.ec.ecommercev3.Entity.Payment.Card;
 import com.ec.ecommercev3.Entity.Payment.CreditCardPaymentMethod;
 import com.ec.ecommercev3.Entity.Payment.PaymentMethod;
 import com.ec.ecommercev3.Entity.Payment.PixPayment;
-import com.ec.ecommercev3.Repository.*;
+import com.ec.ecommercev3.Repository.Jpa.*;
 import com.ec.ecommercev3.Repository.Specification.OrderSpecifications;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import com.ec.ecommercev3.Service.exceptions.RoleUnauthorizedException;
@@ -39,14 +39,12 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.ec.ecommercev3.Entity.Enums.CommentType.REJECTION_REASON;
-import static org.yaml.snakeyaml.nodes.Tag.STR;
 
 @Slf4j
 @Service

@@ -4,4 +4,6 @@ public enum NotificationType {
 
     ORDER_UPDATE,
     SYSTEM,
+    StockUpdate,
+
 }

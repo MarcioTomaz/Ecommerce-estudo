@@ -4,7 +4,7 @@ import com.ec.ecommercev3.DTO.UserPerson.UserPersonEditDTO;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonInsertDTO;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonUpdatePasswordDTO;
 import com.ec.ecommercev3.Entity.UserPerson;
-import com.ec.ecommercev3.Repository.UserPersonRepository;
+import com.ec.ecommercev3.Repository.Jpa.UserPersonRepository;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
@@ -14,7 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

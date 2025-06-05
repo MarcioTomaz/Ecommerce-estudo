@@ -1,4 +1,4 @@
-package com.ec.ecommercev3.Repository;
+package com.ec.ecommercev3.Repository.Jpa;
 
 import com.ec.ecommercev3.DTO.Checkout.ProductCheckoutDTO;
 import com.ec.ecommercev3.Entity.Cart;

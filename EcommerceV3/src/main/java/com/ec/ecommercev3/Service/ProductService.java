@@ -4,7 +4,7 @@ import com.ec.ecommercev3.DTO.Filters.ProductFilters;
 import com.ec.ecommercev3.DTO.Product.*;
 import com.ec.ecommercev3.Entity.Product;
 import com.ec.ecommercev3.Entity.UserPerson;
-import com.ec.ecommercev3.Repository.ProductRepository;
+import com.ec.ecommercev3.Repository.Jpa.ProductRepository;
 import com.ec.ecommercev3.Repository.Specification.ProductSpefications;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import com.ec.ecommercev3.Service.messaging.ProductAvailabilityRequestProducer;

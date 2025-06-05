@@ -1,6 +1,6 @@
 package com.ec.ecommercev3.Service;
 
-import com.ec.ecommercev3.Repository.UserPersonRepository;
+import com.ec.ecommercev3.Repository.Jpa.UserPersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
