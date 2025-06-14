@@ -79,14 +79,10 @@ public class ProductService {
             product = productRepository.findById(productId)
                     .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
-
-
             return product;
         }catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     @Transactional
@@ -101,7 +97,6 @@ public class ProductService {
 
     @Transactional
     public Page<ProductListDTO> readAllProductsForSale(Pageable pageable, ProductFilters filters) {
-
 
         Specification<Product> spec = ProductSpefications.byFilter(filters);
 

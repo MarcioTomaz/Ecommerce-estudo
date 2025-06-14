@@ -23,6 +23,9 @@ import com.ec.ecommercev3.Repository.Specification.OrderSpecifications;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import com.ec.ecommercev3.Service.exceptions.RoleUnauthorizedException;
 import com.ec.ecommercev3.Service.exceptions.TotalMismatchException;
+import com.ec.ecommercev3.Service.helper.ItemMapper;
+import com.ec.ecommercev3.Service.helper.OrderCalculator;
+import com.ec.ecommercev3.Service.helper.StockValidator;
 import com.ec.ecommercev3.Service.messaging.NotificationKafkaProducer;
 import com.ec.ecommercev3.Service.messaging.OrderKafkaProducer;
 import jakarta.transaction.Transactional;
@@ -32,10 +35,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -53,22 +56,12 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
-    @Autowired
-    private PersonRepository personRepository;
 
     @Autowired
     private AddressRepository addressRepository;
 
     @Autowired
     private CartRepository cartRepository;
-
-    @Autowired
-    private CartService cartService;
-
-    ModelMapper modelMapper = new ModelMapper();
-
-    @Autowired
-    private CardService cardService;
 
     @Autowired
     private CardRepository cardRepository;
@@ -86,16 +79,21 @@ public class OrderService {
 
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private ItemMapper itemMapper;
+
+    @Autowired
+    private StockValidator stockValidator;
+
+    @Autowired
+    private OrderCalculator orderCalculator;
 
     @Transactional
     public Order create(OrderStepOneDTO order, UserPerson userPerson) {
 
-        Address billingAddress = addressRepository
-                .findByIdAndActiveTrue(order.billingAddress())
-                .orElseThrow(() -> new ResourceNotFoundException("Erro! Endereço de cobrança não encontrado"));
-        Address shippingAddress = addressRepository
-                .findByIdAndActiveTrue(order.shippingAddress())
-                .orElseThrow(() -> new ResourceNotFoundException("Erro! Endereço de entrega não encontrado"));
+        Address billingAddress = getActiveAddress(order.billingAddress(), "Endereço de cobrança não encontrado");
+
+        Address shippingAddress = getActiveAddress(order.shippingAddress(), "Endereço de entrega não encontrado");
 
         Cart cart = cartRepository
                 .findByUserPersonId(userPerson.getId())
@@ -108,44 +106,16 @@ public class OrderService {
         newOrder.setActive(true);
         newOrder.setStatus(OrderStatus.WAITING_FOR_PAYMENT);
 
-        List<Item> orderItems = cart.getItems().stream()
-                .map(cartItem -> new Item(
-                        cartItem.getProduct(),
-                        cartItem.getQuantity(),
-                        newOrder
-                ))
-                .toList();
-        newOrder.setOrderItems(orderItems);
-
-        // Bulk‑load dos produtos que serão ajustados no estoque
-        List<Long> productIds = orderItems.stream()
-                .map(i -> i.getProduct().getId())
-                .toList();
-
-        List<Product> products = productRepository.findAllById(productIds);
-        Map<Long, Product> productMap = products.stream()
-                .collect(Collectors.toMap(Product::getId, Function.identity()));
-
-        for (Item orderItem : orderItems) {
-            Product product = productMap.get(orderItem.getProduct().getId());
-            Long qtyToDiscount = orderItem.getQuantity();
-
-            if (product.getStock() < qtyToDiscount) {
-                throw new IllegalArgumentException(
-                        "Estoque insuficiente para o produto: " + product.getProduct_name());
-            }
-            product.setStock((int) (product.getStock() - qtyToDiscount));
+        if(cart.getItems().isEmpty()) {
+            throw new ResourceNotFoundException("Carrinho vazio!");
         }
 
-        productRepository.saveAll(products);
+        List<Item> orderItems = itemMapper.map(cart.getItems(), newOrder);
+        newOrder.setOrderItems(orderItems);
 
-        // Calcular total do pedido e salvar order
-        double total = orderItems.stream()
-                .mapToDouble(i -> i.getQuantity() * i.getProduct().getProduct_price())
-                .sum();
-        BigDecimal roundedTotal = BigDecimal.valueOf(total)
-                .setScale(2, RoundingMode.HALF_UP);
-        newOrder.setTotal(roundedTotal.doubleValue());
+        stockValidator.validateStock(orderItems);
+        BigDecimal total = orderCalculator.calculateTotal(orderItems);
+        newOrder.setTotal(total.doubleValue());
 
         orderRepository.save(newOrder);
 
@@ -166,7 +136,6 @@ public class OrderService {
 
         return newOrder;
     }
-
 
     @Transactional
     public List<PaymentMethod> addPaymentOrder(PaymentDTO paymentDTO) {
@@ -270,6 +239,10 @@ public class OrderService {
 
         Order result = orderRepository.findById(orderId).orElseThrow(() ->
                 new ResourceNotFoundException("Pedido não encontrado!"));
+
+        if(!result.getPerson().getId().equals(userPerson.getId()) && !userPerson.getRole().equals(UserRole.ADMIN)) {
+            throw new AccessDeniedException("Você não tem permissão para acessar este pedido.");
+        }
 
         List<OrderItemsDTO> orderItemsDTO = result.getOrderItems().stream()
                 .map(item -> new OrderItemsDTO(item.getId(),
@@ -498,4 +471,12 @@ public class OrderService {
 
         });
     }
+
+
+    private Address getActiveAddress(Long id, String errorMessage) {
+        return addressRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
+    }
+
+
 }
