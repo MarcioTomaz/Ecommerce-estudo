@@ -18,6 +18,7 @@ import com.ec.ecommercev3.Entity.Payment.Card;
 import com.ec.ecommercev3.Entity.Payment.CreditCardPaymentMethod;
 import com.ec.ecommercev3.Entity.Payment.PaymentMethod;
 import com.ec.ecommercev3.Entity.Payment.PixPayment;
+import com.ec.ecommercev3.Entity.Product.Product;
 import com.ec.ecommercev3.Repository.Jpa.*;
 import com.ec.ecommercev3.Repository.Specification.OrderSpecifications;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
@@ -30,7 +31,6 @@ import com.ec.ecommercev3.Service.messaging.NotificationKafkaProducer;
 import com.ec.ecommercev3.Service.messaging.OrderKafkaProducer;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -237,6 +237,9 @@ public class OrderService {
     @Transactional
     public OrderDTO findOrderById(UserPerson userPerson, Long orderId) {
 
+//        Order result = orderRepository.findById(orderId).orElseThrow(() ->
+//                new ResourceNotFoundException("Pedido não encontrado!"));
+
         Order result = orderRepository.findById(orderId).orElseThrow(() ->
                 new ResourceNotFoundException("Pedido não encontrado!"));
 
@@ -246,7 +249,7 @@ public class OrderService {
 
         List<OrderItemsDTO> orderItemsDTO = result.getOrderItems().stream()
                 .map(item -> new OrderItemsDTO(item.getId(),
-                        new ProductEditDTO(item.getProduct()),
+                        new ProductEditDTO(item.getProductHistory()),
                         item.getQuantity())).toList();
 
 
@@ -284,7 +287,7 @@ public class OrderService {
 
         List<OrderItemsDTO> orderItemsDTO = result.getOrderItems().stream()
                 .map(item -> new OrderItemsDTO(item.getId(),
-                        new ProductEditDTO(item.getProduct()),
+                        new ProductEditDTO(item.getProductHistory()),
                         item.getQuantity())).toList();
 
         // Retornar o DTO preenchido

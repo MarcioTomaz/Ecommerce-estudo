@@ -1,5 +1,5 @@
 package com.ec.ecommercev3.Repository.Jpa;
-import com.ec.ecommercev3.Entity.Product;
+import com.ec.ecommercev3.Entity.Product.Product;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

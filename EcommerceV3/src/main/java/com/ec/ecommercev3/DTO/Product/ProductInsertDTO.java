@@ -31,4 +31,6 @@ public class ProductInsertDTO extends DomainEntity {
 
     @NotNull
     private Integer stock;
+
+    private Integer version;
 }

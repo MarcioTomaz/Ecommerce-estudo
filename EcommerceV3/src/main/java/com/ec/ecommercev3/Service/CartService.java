@@ -4,9 +4,11 @@ import com.ec.ecommercev3.DTO.CartAddDTO;
 import com.ec.ecommercev3.DTO.Checkout.ProductCheckoutDTO;
 import com.ec.ecommercev3.Entity.Cart;
 import com.ec.ecommercev3.Entity.Item;
-import com.ec.ecommercev3.Entity.Product;
+import com.ec.ecommercev3.Entity.Product.Product;
+import com.ec.ecommercev3.Entity.Product.ProductHistory;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Repository.Jpa.CartRepository;
+import com.ec.ecommercev3.Repository.Jpa.ProductHistoryRepository;
 import com.ec.ecommercev3.Repository.Jpa.ProductRepository;
 import com.ec.ecommercev3.Repository.Jpa.UserPersonRepository;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
@@ -31,13 +33,22 @@ public class CartService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ProductHistoryRepository productHistoryRepository;
+
     @Transactional
     public Cart create(CartAddDTO dto, Long personId) {
-
 
         List<Long> productsIds = dto.getItems().stream().map(item -> item.getProduct().getId()).toList();
 
         List<Product> productsStock = productRepository.findAllById(productsIds);
+
+        Map<Long, ProductHistory> historyMap = productsIds.stream()
+                .collect(Collectors.toMap(
+                        id -> id,
+                        id -> productHistoryRepository.findTopByProductIdOrderByVersionDesc(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Histórico não encontrado para produto ID: " + id))
+                ));
 
         Map<Long, Product> productMap = productsStock.stream().collect(Collectors.toMap(Product::getId, Function.identity()));
 
@@ -70,6 +81,10 @@ public class CartService {
 
         for (Item item : dto.getItems()) {
             item.setCart(cart);  // Configura a referência reversa
+
+            ProductHistory history = historyMap.get(item.getProduct().getId());
+            item.setProductHistory(history);
+
             cart.getItems().add(item);  // Adiciona à lista existente
         }
 

@@ -1,7 +1,7 @@
 package com.ec.ecommercev3.Service.helper;
 
 import com.ec.ecommercev3.Entity.Item;
-import com.ec.ecommercev3.Entity.Product;
+import com.ec.ecommercev3.Entity.Product.Product;
 import com.ec.ecommercev3.Repository.Jpa.ProductRepository;
 import com.ec.ecommercev3.Service.exceptions.InsufficientStockException;
 import org.springframework.beans.factory.annotation.Autowired;

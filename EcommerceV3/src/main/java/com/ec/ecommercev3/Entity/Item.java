@@ -1,5 +1,7 @@
 package com.ec.ecommercev3.Entity;
 
+import com.ec.ecommercev3.Entity.Product.Product;
+import com.ec.ecommercev3.Entity.Product.ProductHistory;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,6 +30,16 @@ public class Item extends DomainEntity {
 
     @Column
     private Long quantity;
+
+//    @Column(name = "product_history_id")
+//    private Long productHistoryId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_history_id", nullable = true) // nullable = true é crucial
+    private ProductHistory productHistory;
+
+//    @Column(name = "product_version")
+//    private Integer productVersion;
 
 //    @Column
 //    private Double total_value;

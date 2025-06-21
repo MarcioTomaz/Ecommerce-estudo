@@ -1,7 +1,7 @@
 package com.ec.ecommercev3.Repository.Specification;
 
 import com.ec.ecommercev3.DTO.Filters.ProductFilters;
-import com.ec.ecommercev3.Entity.Product;
+import com.ec.ecommercev3.Entity.Product.Product;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 

@@ -3,7 +3,7 @@ package com.ec.ecommercev3.Entity.Comment;
 
 import com.ec.ecommercev3.Entity.*;
 import com.ec.ecommercev3.Entity.Enums.CommentType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ec.ecommercev3.Entity.Product.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -20,11 +20,13 @@ public class ProductListDTO {
 
     private double product_price;
 
-
     @Enumerated(EnumType.STRING)
     private ProductCategory productCategory;
 
     private Currency currency;
 
     private Integer stock;
+
+    private Integer version;
+
 }

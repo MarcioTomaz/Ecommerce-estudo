@@ -2,8 +2,10 @@ package com.ec.ecommercev3.Service;
 
 import com.ec.ecommercev3.DTO.Filters.ProductFilters;
 import com.ec.ecommercev3.DTO.Product.*;
-import com.ec.ecommercev3.Entity.Product;
+import com.ec.ecommercev3.Entity.Product.Product;
+import com.ec.ecommercev3.Entity.Product.ProductHistory;
 import com.ec.ecommercev3.Entity.UserPerson;
+import com.ec.ecommercev3.Repository.Jpa.ProductHistoryRepository;
 import com.ec.ecommercev3.Repository.Jpa.ProductRepository;
 import com.ec.ecommercev3.Repository.Specification.ProductSpefications;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
@@ -34,12 +36,24 @@ public class ProductService {
 
     @Autowired
     private ProductStockUpdateProducer productStockUpdateProducer;
+    @Autowired
+    private ProductHistoryRepository productHistoryRepository;
 
     public Product create(ProductInsertDTO productInsertDTO) {
+
+        productInsertDTO.setCurrencyId(1L);
         Product product = modelMapper.map(productInsertDTO, Product.class);
 
         try {
             productRepository.save(product);
+
+            ProductHistory productHistory = new ProductHistory();
+            modelMapper.map(product, productHistory);
+            productHistory.setProduct(product);
+            productHistory.setVersion(product.getVersion());
+            productHistory.setId(null);
+            productHistoryRepository.save(productHistory);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -47,17 +61,27 @@ public class ProductService {
         return product;
     }
 
+
     @Transactional
-    public Product update(Long productId, ProductEditDTO productEditDTO) {
-        Product oldProduct = productRepository.findById(productId)
+    public Product update(ProductEditDTO productEditDTO) {
+        Product oldProduct = productRepository.findById(productEditDTO.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
         modelMapper.map(productEditDTO, oldProduct);
-        oldProduct.setId(productId);
-
         oldProduct.setUpdatedDate(LocalDateTime.now());
+        oldProduct.setVersion(oldProduct.getVersion() + 1);  // Incrementa a versão
 
-        return productRepository.save(oldProduct);
+        productRepository.save(oldProduct);
+
+        ProductHistory productHistory = new ProductHistory();
+        modelMapper.map(oldProduct, productHistory);
+        productHistory.setProduct(oldProduct);
+        productHistory.setVersion(oldProduct.getVersion());
+        productHistory.setId(null);
+
+        productHistoryRepository.save(productHistory);
+
+        return oldProduct;
     }
 
     @Transactional
@@ -88,7 +112,9 @@ public class ProductService {
     @Transactional
     public void delete(Long productId) {
 
-        Product result = productRepository.findByIdAndActiveTrue(productId)
+//        Product result = productRepository.findByIdAndActiveTrue(productId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        Product result = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
         result.setActive(false);
@@ -103,9 +129,8 @@ public class ProductService {
         Page<Product> result = productRepository.findAll(spec, pageable);
 
         return result.map(r -> new ProductListDTO(r.getId(), r.getProduct_name(), r.getProduct_description(),
-                r.getProduct_price(), r.getProductCategory(), r.getCurrency(), r.getStock()));
+                r.getProduct_price(), r.getProductCategory(), r.getCurrency(), r.getStock(), r.getVersion()));
     }
-
 
     @Transactional
     public Product readById(Long productId) {

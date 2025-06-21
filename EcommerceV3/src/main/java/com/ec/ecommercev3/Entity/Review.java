@@ -1,6 +1,7 @@
 package com.ec.ecommercev3.Entity;
 
 
+import com.ec.ecommercev3.Entity.Product.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

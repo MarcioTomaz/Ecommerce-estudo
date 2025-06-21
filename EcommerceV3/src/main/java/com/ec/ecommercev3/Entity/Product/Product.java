@@ -1,6 +1,9 @@
-package com.ec.ecommercev3.Entity;
+package com.ec.ecommercev3.Entity.Product;
 
+import com.ec.ecommercev3.Entity.Currency;
+import com.ec.ecommercev3.Entity.DomainEntity;
 import com.ec.ecommercev3.Entity.Enums.ProductCategory;
+import com.ec.ecommercev3.Entity.Review;
 import jakarta.persistence.*;
 
 import lombok.Getter;
@@ -13,7 +16,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table( name= "_product")
-public class Product extends DomainEntity{
+public class Product extends DomainEntity {
 
     private String product_name;
 
@@ -29,6 +32,8 @@ public class Product extends DomainEntity{
     private Currency currency;
 
     private Integer stock;
+
+    private Integer version;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();

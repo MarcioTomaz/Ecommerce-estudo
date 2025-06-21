@@ -91,6 +91,7 @@ create table _product (
                           product_price       double not null,
                           stock               int,
                           currency_id         bigint not null,
+                          version INT NOT NULL DEFAULT 1,
                           constraint fk_product__currency_id___currency foreign key (currency_id) references _currency (id)
 );
 
@@ -163,6 +164,7 @@ create table _item (
                        cart_id       bigint,
                        order_id      bigint,
                        product_id    bigint,
+                       product_history_id bigint,
                        constraint fk_item__order_id___order foreign key (order_id) references _order (id),
                        constraint fk_item__cart_id___cart foreign key (cart_id) references _cart (id),
                        constraint fk_item__product_id___product foreign key (product_id) references _product (id)

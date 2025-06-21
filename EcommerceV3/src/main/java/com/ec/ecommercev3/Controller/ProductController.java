@@ -2,7 +2,7 @@ package com.ec.ecommercev3.Controller;
 
 import com.ec.ecommercev3.DTO.Filters.ProductFilters;
 import com.ec.ecommercev3.DTO.Product.*;
-import com.ec.ecommercev3.Entity.Product;
+import com.ec.ecommercev3.Entity.Product.Product;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.ProductService;
 import jakarta.validation.Valid;
@@ -31,7 +31,7 @@ public class ProductController {
     }
 
     @GetMapping("/read")
-    public ResponseEntity<Page<ProductListDTO>> readAllProduct(Pageable pageable,
+    public ResponseEntity<Page<ProductListDTO>> readAllProductsForSale(Pageable pageable,
                                                                @ModelAttribute ProductFilters filters) {
 
         Page<ProductListDTO> result = productService.readAllProductsForSale(pageable, filters);
@@ -48,10 +48,9 @@ public class ProductController {
     }
 
     @PutMapping("/update/{idProduct}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long idProduct,
-                                                 @Valid @RequestBody ProductEditDTO productEditDTO) {
+    public ResponseEntity<Product> updateProduct(@Valid @RequestBody ProductEditDTO productEditDTO) {
 
-        Product result = productService.update(idProduct, productEditDTO);
+        Product result = productService.update(productEditDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
