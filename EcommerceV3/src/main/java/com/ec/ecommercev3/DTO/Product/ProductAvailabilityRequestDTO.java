@@ -5,6 +5,7 @@ import java.time.Instant;
 public record ProductAvailabilityRequestDTO(
         Long userId,
         Long productId,
+        String productName,
         Instant timestamp
 ) {
 }

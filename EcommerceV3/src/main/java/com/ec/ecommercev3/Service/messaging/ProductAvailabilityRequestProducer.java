@@ -15,11 +15,15 @@ public class ProductAvailabilityRequestProducer {
     private static final String TOPIC = "product.availability.request";
     private final ObjectMapper objectMapper;
 
-    public void sendProductAvailabilityRequest(ProductAvailabilityRequestDTO event) {
+    public void sendProductAvailabilityRequest(ProductAvailabilityRequestDTO event, Long userId) {
 
         try {
-            String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(TOPIC, event.userId().toString(), json);
+
+            ProductAvailabilityRequestDTO newEvent =
+                    new ProductAvailabilityRequestDTO(event.productId(), userId, event.productName(), event.timestamp());
+
+            String json = objectMapper.writeValueAsString(newEvent);
+            kafkaTemplate.send(TOPIC, userId.toString(), json);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);

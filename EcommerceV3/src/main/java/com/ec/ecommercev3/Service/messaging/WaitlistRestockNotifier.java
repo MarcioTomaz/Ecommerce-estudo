@@ -1,7 +1,6 @@
 package com.ec.ecommercev3.Service.messaging;
 
 
-import com.ec.ecommercev3.DTO.Product.ProductAvailabilityRequestDTO;
 import com.ec.ecommercev3.DTO.Product.ProductStockUpdateDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -10,13 +9,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ProductStockUpdateProducer {
+public class WaitlistRestockNotifier {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private static final String TOPIC = "product.stock.update";
+    private static final String TOPIC = "waitlist.restock.notifier";
     private final ObjectMapper objectMapper;
 
-    public void productStockUpdate(ProductStockUpdateDTO event) {
+    public void waitlistRestockNotifier(ProductStockUpdateDTO event) {
 
         try {
             String json = objectMapper.writeValueAsString(event);

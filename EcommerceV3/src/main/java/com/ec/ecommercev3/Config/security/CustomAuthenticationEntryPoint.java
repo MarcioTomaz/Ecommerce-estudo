@@ -20,21 +20,17 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
 
-        // Define o status HTTP
-        HttpStatus status = HttpStatus.NOT_FOUND;
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
 
-        // Cria o objeto de erro personalizado
         StandardError errorDetails = new StandardError();
         errorDetails.setStatus(status.value());
-        errorDetails.setError("Resource not found");
+        errorDetails.setError("Unauthorized");
         errorDetails.setMessage("Email ou senha incorretos");
         errorDetails.setPath(request.getRequestURI());
 
-        // Configura o cabeçalho e o tipo de conteúdo da resposta como JSON
         response.setStatus(status.value());
         response.setContentType("application/json");
 
-        // Converte o objeto de erro para JSON e escreve na resposta
         response.getWriter().write(objectMapper.writeValueAsString(errorDetails));
     }
 }

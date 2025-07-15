@@ -1,5 +1,6 @@
 package com.ec.ecommercev3.Repository.Jpa;
 
+import com.ec.ecommercev3.Entity.Product.Product;
 import com.ec.ecommercev3.Entity.Product.ProductHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,4 +12,6 @@ public interface ProductHistoryRepository extends JpaRepository<ProductHistory, 
 
 
     Optional<ProductHistory> findTopByProductIdOrderByVersionDesc(Long id);
+
+    boolean existsByProductAndVersion(Product currentProduct, Integer version);
 }

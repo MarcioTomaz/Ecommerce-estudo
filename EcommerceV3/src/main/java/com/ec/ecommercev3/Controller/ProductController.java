@@ -47,10 +47,11 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @PutMapping("/update/{idProduct}")
-    public ResponseEntity<Product> updateProduct(@Valid @RequestBody ProductEditDTO productEditDTO) {
+    @PutMapping("/update")
+    public ResponseEntity<Product> updateProduct(@Valid @RequestBody ProductEditDTO productEditDTO,
+                                                 @AuthenticationPrincipal UserPerson userPerson) {
 
-        Product result = productService.update(productEditDTO);
+        Product result = productService.update(productEditDTO, userPerson);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

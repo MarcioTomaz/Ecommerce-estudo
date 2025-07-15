@@ -34,7 +34,6 @@ public class  ProductEditDTO {
     @NotNull
     private Long currencyId;
 
-    @NotNull
     private Integer stock;
 
     public ProductEditDTO(ProductHistory product) {
