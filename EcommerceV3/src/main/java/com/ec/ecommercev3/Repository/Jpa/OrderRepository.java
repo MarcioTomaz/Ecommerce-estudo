@@ -6,8 +6,10 @@ import com.ec.ecommercev3.DTO.Order.OrderListDTO;
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
 import com.ec.ecommercev3.Entity.Order;
 import com.ec.ecommercev3.Entity.Person;
+import com.ec.ecommercev3.Entity.UserPerson;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -32,6 +34,9 @@ public interface OrderRepository extends JpaRepository<Order, Long>,
     Page<OrderListAdmDTO> findAllForApproval(Pageable pageable);
 
     List<Order> findByStatus(OrderStatus orderStatus);
+
+
+    Page<Order> findAllByPerson(Person person, Specification<Order> spec, Pageable pageable);
 }
 
 

@@ -227,7 +227,7 @@ public class OrderService {
     @Transactional
     public Page<OrderListDTO> findAllClientOrders(UserPerson userPerson, Pageable pageable, OrderFilterDTO filter) {
 
-        Specification<Order> spec = OrderSpecifications.byFilter(filter);
+        Specification<Order> spec = OrderSpecifications.byFilter(filter, userPerson.getPerson());
 
         Page<Order> result = orderRepository.findAll(spec, pageable);
 
@@ -307,7 +307,7 @@ public class OrderService {
             throw new RoleUnauthorizedException("Acesso negado!");
         }
 
-        Specification<Order> spec = OrderSpecifications.byFilter(filter);
+        Specification<Order> spec = OrderSpecifications.byFilter(filter, null);
 
         Page<Order> result = orderRepository.findAll(spec, pageable);
 

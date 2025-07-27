@@ -74,9 +74,9 @@ public class ProductController {
     }
 
 
-    @PostMapping("/request")
-    public void productAvailabilityRequest(@AuthenticationPrincipal UserPerson userPerson,
-                                           @RequestBody ProductAvailabilityRequestDTO dto) {
+    @PostMapping("/waitlist")
+    public void productAvailabilityWaitlist(@AuthenticationPrincipal UserPerson userPerson,
+                                            @RequestBody ProductAvailabilityRequestDTO dto) {
 
         productService.productRequest(userPerson, dto);
     }

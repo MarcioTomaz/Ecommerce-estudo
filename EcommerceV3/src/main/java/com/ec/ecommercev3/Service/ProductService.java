@@ -197,14 +197,17 @@ public class ProductService {
     public void productRequest(UserPerson userPerson, ProductAvailabilityRequestDTO dto) {
 
         try {
-            Optional<Product> result = productRepository.findById(userPerson.getId());
+            Optional<Product> result = productRepository.findById(dto.productId());
 
             if (result.isEmpty()) {
                 throw new ResourceNotFoundException("Produto não encontrado!");
             }
 
+            ProductAvailabilityRequestDTO sendDto =
+                    new ProductAvailabilityRequestDTO(userPerson.getId(), dto.productId(), result.get().getProduct_name(), dto.timestamp());
+
             productAvailabilityRequestProducer
-                    .sendProductAvailabilityRequest(dto, userPerson.getId());
+                    .sendProductAvailabilityRequest(sendDto, userPerson.getId());
 
         } catch (Exception e) {
             throw new RuntimeException(e);

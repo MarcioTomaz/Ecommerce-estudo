@@ -20,7 +20,7 @@ public class ProductAvailabilityRequestProducer {
         try {
 
             ProductAvailabilityRequestDTO newEvent =
-                    new ProductAvailabilityRequestDTO(event.productId(), userId, event.productName(), event.timestamp());
+                    new ProductAvailabilityRequestDTO(userId, event.productId(), event.product_name(), event.timestamp());
 
             String json = objectMapper.writeValueAsString(newEvent);
             kafkaTemplate.send(TOPIC, userId.toString(), json);
