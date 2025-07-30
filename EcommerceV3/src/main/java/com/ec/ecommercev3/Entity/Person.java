@@ -3,6 +3,7 @@ package com.ec.ecommercev3.Entity;
 import com.ec.ecommercev3.DTO.PersonDTO;
 import com.ec.ecommercev3.Entity.Enums.Gender;
 import com.ec.ecommercev3.Entity.Enums.PhoneType;
+import com.ec.ecommercev3.Entity.Payment.Card;
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.NotBlank;

@@ -26,7 +26,7 @@ public class Address extends DomainEntity {
     @Column(name = "street", nullable = false)
     private String street;
 
-    @Column(name = "residencyType", nullable = false)
+    @Column(name = "residency_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private ResidencyType residencyType;
 
@@ -39,7 +39,7 @@ public class Address extends DomainEntity {
     @Column(name = "district", nullable = false)
     private String district; //bairro
 
-    @Column(name = "zipCode", nullable = false)
+    @Column(name = "zip_code", nullable = false)
     private String zipCode; //cep
 
     @Column(name = "logradouro", nullable = false)
@@ -54,7 +54,7 @@ public class Address extends DomainEntity {
     @Column(name = "state")
     private String state;
 
-    @Column(name = "addressType", nullable = false)
+    @Column(name = "address_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private AddressType addressType;
 

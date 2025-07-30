@@ -1,7 +1,6 @@
 package com.ec.ecommercev3.DTO;
 
 import com.ec.ecommercev3.Entity.Item;
-import com.ec.ecommercev3.Entity.UserPerson;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,11 +14,5 @@ import java.util.List;
 @AllArgsConstructor
 public class CartAddDTO {
 
-    private Long userPersonId;
-
     private List<Item> items;
-
-    private boolean currentCart = true;
-
-    private Double total_value;
 }

@@ -20,11 +20,8 @@ public class Cart extends DomainEntity{
     private UserPerson userPerson;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("cart-reference") // Correspondente ao back-reference em Item
     private List<Item> items = new ArrayList<>();
-
-    @Column
-    private boolean currentCart;
 
     @Column
     private Double total_value;

@@ -1,6 +1,7 @@
 package com.ec.ecommercev3.DTO.Card;
 
 import com.ec.ecommercev3.Entity.Enums.CardFlag;
+import com.ec.ecommercev3.Entity.Payment.Card;
 import com.ec.ecommercev3.Entity.Person;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -18,8 +19,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CardDTO {
 
+    private Long id;
 
     @Valid
+    @JsonIgnore
     private Person person;
 
     private String number;
@@ -38,4 +41,17 @@ public class CardDTO {
     private CardFlag flag;// bandeira
 
     private String alias;
+
+    public CardDTO(Card card) {
+        this.id = card.getId();
+        this.person = card.getPerson();
+        this.number = card.getNumber();
+        this.holder = card.getHolder();
+        this.expirationDate = card.getExpirationDate();
+        this.security = card.getSecurity();
+        this.holderCpf = card.getHolderCpf();
+        this.preferencial = card.getPreferencial();
+        this.flag = card.getFlag();
+        this.alias = card.getAlias();
+    }
 }

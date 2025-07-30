@@ -2,6 +2,7 @@ package com.ec.ecommercev3.DTO;
 
 import com.ec.ecommercev3.Entity.Enums.Gender;
 import com.ec.ecommercev3.Entity.Enums.PhoneType;
+import com.ec.ecommercev3.Entity.Person;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
@@ -36,4 +37,14 @@ public class PersonDTO {
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Genero não pode ser vazio")
     private Gender gender;
+
+    public PersonDTO(Person person) {
+        this.firstName = person.getFirstName();
+        this.lastName = person.getLastName();
+        this.birthDate = person.getBirthDate();
+        this.phoneNumber = person.getPhoneNumber();
+        this.phoneType = person.getPhoneType();
+        this.gender = person.getGender();
+    }
+
 }

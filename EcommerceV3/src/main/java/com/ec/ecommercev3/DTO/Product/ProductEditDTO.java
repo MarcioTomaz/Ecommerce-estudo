@@ -1,8 +1,7 @@
 package com.ec.ecommercev3.DTO.Product;
 
-import com.ec.ecommercev3.Entity.Currency;
-import com.ec.ecommercev3.Entity.DomainEntity;
 import com.ec.ecommercev3.Entity.Enums.ProductCategory;
+import com.ec.ecommercev3.Entity.Product.ProductHistory;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
@@ -16,7 +15,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductEditDTO extends DomainEntity {
+public class  ProductEditDTO {
+
+    private Long id;
 
     @NotBlank
     private String product_name;
@@ -33,6 +34,16 @@ public class ProductEditDTO extends DomainEntity {
     @NotNull
     private Long currencyId;
 
-    @NotNull
     private Integer stock;
+
+    public ProductEditDTO(ProductHistory product) {
+        this.id = product.getId();
+        this.product_name = product.getProduct_name();
+        this.product_description = product.getProduct_description();
+        this.product_price = product.getProduct_price();
+        this.productCategory = product.getProductCategory();
+        this.currencyId = product.getCurrency().getId();
+        this.stock = product.getStock();
+    }
+
 }

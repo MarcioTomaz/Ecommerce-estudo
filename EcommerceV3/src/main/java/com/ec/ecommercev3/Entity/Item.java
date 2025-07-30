@@ -1,5 +1,7 @@
 package com.ec.ecommercev3.Entity;
 
+import com.ec.ecommercev3.Entity.Product.Product;
+import com.ec.ecommercev3.Entity.Product.ProductHistory;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,12 +12,17 @@ import lombok.*;
 @AllArgsConstructor
 @Table(name = "_item")
 @Entity
-public class Item extends DomainEntity{
+public class Item extends DomainEntity {
 
     @ManyToOne
-    @JoinColumn(name = "cart_id")
-    @JsonBackReference
+    @JoinColumn(name = "cart_id", nullable = true) // Relacionamento com Cart
+    @JsonBackReference("cart-reference") // Nome único para o back-reference
     private Cart cart;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = true) // Relacionamento com Order
+    @JsonBackReference("order-reference") // Nome único para o back-reference
+    private Order order;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
@@ -24,6 +31,24 @@ public class Item extends DomainEntity{
     @Column
     private Long quantity;
 
-    @Column
-    private Double total_value;
+//    @Column(name = "product_history_id")
+//    private Long productHistoryId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_history_id", nullable = true) // nullable = true é crucial
+    private ProductHistory productHistory;
+
+//    @Column(name = "product_version")
+//    private Integer productVersion;
+
+//    @Column
+//    private Double total_value;
+
+    public Item(Product product, Long quantity, /*Double totalValue,*/ Order order) {
+        this.product = product;
+        this.quantity = quantity;
+//        this.total_value = totalValue;
+        this.order = order;
+    }
+
 }

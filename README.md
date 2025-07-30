@@ -1,7 +1,3 @@
-Branch atual:
-## Branch Messaging
-Você pode acessar a branch `Messaging` diretamente [aqui](https://github.com/MarcioTomaz/Ecommerce-estudo/tree/Messaging).
-
 # 🛒 Ecommerce-estudo
 
 Projeto pessoal de estudo voltado ao desenvolvimento de um sistema de e-commerce utilizando **Java 17** e **Spring Boot**. O objetivo é experimentar novas tecnologias, práticas de arquitetura e refatoração contínua de código, servindo como um ambiente prático de aprendizado.
@@ -42,11 +38,3 @@ Repositório: [Ecommerce-Frontend-React](https://github.com/MarcioTomaz/Ecommerc
 * **Docker** (para ambientes de desenvolvimento)
 * **React** (no frontend)
 * **Vite** (no frontend)
-
-## 🚀 Como Executar o Projeto
-
-1. **Clone este repositório:**
-
-   ```bash
-   git clone https://github.com/MarcioTomaz/Ecommerce-estudo.git
-   ```

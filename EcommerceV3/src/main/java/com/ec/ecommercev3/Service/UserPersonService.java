@@ -2,20 +2,19 @@ package com.ec.ecommercev3.Service;
 
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonEditDTO;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonInsertDTO;
-import com.ec.ecommercev3.DTO.UserPerson.UserPersonLoginDTO;
 import com.ec.ecommercev3.DTO.UserPerson.UserPersonUpdatePasswordDTO;
 import com.ec.ecommercev3.Entity.UserPerson;
-import com.ec.ecommercev3.Repository.UserPersonRepository;
+import com.ec.ecommercev3.Repository.Jpa.UserPersonRepository;
 import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserPersonService {
@@ -30,9 +29,9 @@ public class UserPersonService {
 
         UserPerson userPerson = new UserPerson();
 
-        Optional<UserPerson> emailVerify = userPersonRepository.findByEmail(userPersonInsertDTO.getEmail());
+        UserDetails emailVerify = userPersonRepository.findByEmail(userPersonInsertDTO.getEmail());
 
-        if(emailVerify.isPresent() && userPersonInsertDTO.getEmail().equals(emailVerify.get().getEmail())) {
+        if(emailVerify.isEnabled() && userPersonInsertDTO.getEmail().equals(emailVerify.getUsername())) {
 
             throw new ResourceNotFoundException("Email already exists");
         }
@@ -42,7 +41,7 @@ public class UserPersonService {
         try {
             userPersonRepository.save(userPerson);
         } catch (Exception ex) {
-
+            throw new RuntimeException(ex);
         }
 
         return userPerson;
@@ -50,8 +49,11 @@ public class UserPersonService {
 
     @Transactional
     public UserPerson update(Long userPersonId, UserPersonEditDTO userPersonEditDTO) {
-        UserPerson oldUserPerson = userPersonRepository.findById(userPersonId)
+        UserPerson oldUserPerson = userPersonRepository.findByIdAndActiveTrue(userPersonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+        String encryptedPassword = new BCryptPasswordEncoder().encode(userPersonEditDTO.getPassword());
+        userPersonEditDTO.setPassword(encryptedPassword);
 
         // Mapear os dados do DTO para a entidade existente
         modelMapper.map(userPersonEditDTO, oldUserPerson);
@@ -66,24 +68,23 @@ public class UserPersonService {
 
     @Transactional
     public List<UserPerson> readAll() {
-        List<UserPerson> userPersonList = new ArrayList<>();
+        List<UserPerson> userPersonList;
         try {
             userPersonList = userPersonRepository.findAll();
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
 
         return userPersonList;
     }
 
     @Transactional
-    public UserPerson readById(Long id) {
-        UserPerson userPerson = null;
+    public UserPersonEditDTO readById(Long id) {
 
-        userPerson = userPersonRepository.findById(id)
+        UserPerson userPerson = userPersonRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("usuário não encontrado"));
 
-        return userPerson;
+        return new UserPersonEditDTO(userPerson);
     }
 
     @Transactional
@@ -91,7 +92,8 @@ public class UserPersonService {
 
         UserPerson result = userPersonRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
-        userPersonRepository.delete(result);
+        result.setActive(false);
+        userPersonRepository.save(result);
     }
 
     @Transactional
@@ -106,18 +108,5 @@ public class UserPersonService {
         up.setPassword(upDTO.getNewPassword());
         up.setUpdatedDate(LocalDateTime.now());
         return userPersonRepository.save(up);
-    }
-
-    @Transactional
-    public UserPersonLoginDTO login(UserPersonLoginDTO userPersonLoginDTO) {
-        UserPerson user = userPersonRepository.findByEmail(userPersonLoginDTO.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Email incorreto!"));
-
-        if (!user.getPassword().equals(userPersonLoginDTO.getPassword())) {
-            throw new ResourceNotFoundException("Senha incorreta!");
-        }
-        UserPersonLoginDTO result = modelMapper.map(user, UserPersonLoginDTO.class);
-        result.setId(user.getId());
-        return result;
     }
 }
