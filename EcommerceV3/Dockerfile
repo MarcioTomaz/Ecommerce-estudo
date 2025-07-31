@@ -1,21 +1,16 @@
-FROM maven:3.8.5-openjdk-17 AS build
+FROM ubuntu:latest AS build
 
-WORKDIR /app
+RUN apt-get update
+RUN apt-get install openjdk-17-jdk -y
+COPY . .
 
-COPY EcommerceV3/pom.xml .
-
-RUN mvn dependency:go-offline -B
-
-COPY EcommerceV3 /app
-
-RUN mvn clean package -DskipTests
+RUN apt-get install maven -y
+RUN mvn clean install -DskipTests
 
 FROM openjdk:17-jdk-slim
 
-WORKDIR /app
-
-COPY --from=build /app/target/*.jar app.jar
-
 EXPOSE 8080
 
-CMD ["java", "-jar", "app.jar"]
+COPY --from=build /target/deploy_render-1.0.0.jar app.jar
+
+ENTRYPOINT [ "java", "-jar", "app.jar" ]
