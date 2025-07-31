@@ -1,17 +1,27 @@
-# Etapa 1: Build com Maven
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+FROM eclipse-temurin:21-jdk-jammy as builder
+
 WORKDIR /app
 
-COPY . .
 
-RUN mvn clean package -DskipTests
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
 
-# Etapa 2: Runtime
-FROM eclipse-temurin:21-jdk
+RUN chmod +x mvnw
+
+RUN ./mvnw dependency:go-offline -B
+
+COPY src ./src
+
+RUN ./mvnw clean package -DskipTests
+
+FROM eclipse-temurin:21-jre-jammy
+
 WORKDIR /app
-
-COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "app.jar"]
+COPY --from=builder /app/target/*.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENV PORT 8080
