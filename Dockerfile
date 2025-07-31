@@ -1,23 +1,21 @@
-# Etapa 1: Build com Maven
-FROM maven:3.8.5-openjdk-17 AS build
+# Etapa 1: Build com Maven usando Java 21
+FROM eclipse-temurin:21-jdk as build
 
-# Diretório de trabalho será /app
 WORKDIR /app
 
-# Copia o projeto inteiro da pasta EcommerceV3
-COPY EcommerceV3/ .
+COPY . .
 
-# Compila o projeto (sem testes)
+RUN apt-get update && apt-get install -y maven
+
 RUN mvn clean package -DskipTests
 
-# Etapa 2: Executar o JAR com imagem leve
-FROM openjdk:17-jdk-slim
+# Etapa 2: Runtime com JDK 21 leve
+FROM eclipse-temurin:21-jdk as runtime
 
 WORKDIR /app
 
-# Copia o JAR do estágio de build
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
