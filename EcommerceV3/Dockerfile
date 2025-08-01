@@ -1,16 +1,17 @@
-FROM maven:3.8.5-openjdk-17 AS build
+
+FROM eclipse-temurin:17-jdk-focal as build
 
 WORKDIR /app
 
-COPY EcommerceV3/pom.xml .
+COPY pom.xml .
 
-RUN mvn dependency:go-offline -B
+RUN ./mvnw dependency:go-offline -Dmaven.test.skip=true
 
-COPY EcommerceV3 /app
+COPY src ./src
 
-RUN mvn clean package -DskipTests
+RUN ./mvnw package -Dmaven.test.skip=true
 
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre-focal
 
 WORKDIR /app
 
@@ -18,4 +19,4 @@ COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
