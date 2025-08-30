@@ -1,9 +1,8 @@
 package com.ec.ecommercev3.Service.messaging;
 
-
-import com.ec.ecommercev3.DTO.Notification.NotificationEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -16,11 +15,11 @@ public class NotificationKafkaProducer {
     private static final String TOPIC = "notification.topic";
     private final ObjectMapper objectMapper;
 
-    public void sendNotification(NotificationEvent event){
+    public void sendNotification(ObjectNode event){
 
         try {
             String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(TOPIC, event.userId().toString(), json);
+            kafkaTemplate.send(TOPIC, event.get("userId").asText(), json);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Erro ao enviar notificacao", e);

@@ -5,6 +5,8 @@ import com.ec.ecommercev3.DTO.Product.*;
 import com.ec.ecommercev3.Entity.Product.Product;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.ProductService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -23,9 +26,19 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+//    @PostMapping("/create")
+//    public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductInsertDTO productInsertDTO) {
+//        Product result = productService.create(productInsertDTO);
+//
+//        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+//    }
+
     @PostMapping("/create")
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductInsertDTO productInsertDTO) {
-        Product result = productService.create(productInsertDTO);
+    public ResponseEntity<Product> createProduct(
+            @RequestPart("product") ProductInsertDTO productInsertDTO,
+            @RequestPart("file") MultipartFile file) {
+
+        Product result = productService.create(productInsertDTO, file);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }

@@ -5,6 +5,7 @@ import com.ec.ecommercev3.DTO.Product.*;
 import com.ec.ecommercev3.DTO.ProductUpdateAudit.FieldChange;
 import com.ec.ecommercev3.DTO.ProductUpdateAudit.ProductUpdateAuditDTO;
 import com.ec.ecommercev3.DTO.ProductUpdateAudit.UserAuditDTO;
+import com.ec.ecommercev3.Entity.Currency;
 import com.ec.ecommercev3.Entity.Product.Product;
 import com.ec.ecommercev3.Entity.Product.ProductHistory;
 import com.ec.ecommercev3.Entity.UserPerson;
@@ -15,6 +16,9 @@ import com.ec.ecommercev3.Service.exceptions.ResourceNotFoundException;
 import com.ec.ecommercev3.Service.messaging.ProductAvailabilityRequestProducer;
 import com.ec.ecommercev3.Service.messaging.ProductUpdateHistoryAuditProducer;
 import com.ec.ecommercev3.Service.messaging.WaitlistRestockNotifier;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -46,15 +51,23 @@ public class ProductService {
 
     @Autowired
     private WaitlistRestockNotifier waitlistRestockNotifier;
+
     @Autowired
     private ProductHistoryRepository productHistoryRepository;
 
-    public Product create(ProductInsertDTO productInsertDTO) {
+    @Autowired
+    private FileStorageService fileStorageService;
 
-        productInsertDTO.setCurrencyId(1L);
-        Product product = modelMapper.map(productInsertDTO, Product.class);
+    public Product create(ProductInsertDTO productInsertDTO, MultipartFile file) {
 
         try {
+
+            String imagePath = fileStorageService.saveFile(file);
+
+            Product product = modelMapper.map(productInsertDTO, Product.class);
+
+            product.setImagePath(imagePath);
+
             productRepository.save(product);
 
             ProductHistory productHistory = new ProductHistory();
@@ -64,11 +77,11 @@ public class ProductService {
             productHistory.setId(null);
             productHistoryRepository.save(productHistory);
 
+            return product;
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        return product;
     }
 
     @Transactional
@@ -93,13 +106,12 @@ public class ProductService {
         newVersionHistory.setProduct(updatedProduct);
         newVersionHistory.setVersion(updatedProduct.getVersion());
 
-        ProductHistory savedHistory = productHistoryRepository.save(newVersionHistory);
+        productHistoryRepository.save(newVersionHistory);
 
         publishProductUpdateAudit(oldProduct, updatedProduct, userPerson);
 
         return updatedProduct;
     }
-
 
     private void publishProductUpdateAudit(Product oldProductSnapshot, Product currentProduct, UserPerson user) {
 
@@ -180,7 +192,7 @@ public class ProductService {
         Page<Product> result = productRepository.findAll(spec, pageable);
 
         return result.map(r -> new ProductListDTO(r.getId(), r.getProduct_name(), r.getProduct_description(),
-                r.getProduct_price(), r.getProductCategory(), r.getCurrency(), r.getStock(), r.getVersion()));
+                r.getProduct_price(), r.getImagePath(), r.getProductCategory(), r.getCurrency(), r.getStock(), r.getVersion()));
     }
 
     @Transactional

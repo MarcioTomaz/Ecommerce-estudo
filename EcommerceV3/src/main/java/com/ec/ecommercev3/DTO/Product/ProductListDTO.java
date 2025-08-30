@@ -20,6 +20,8 @@ public class ProductListDTO {
 
     private double product_price;
 
+    private String image_path;
+
     @Enumerated(EnumType.STRING)
     private ProductCategory productCategory;
 

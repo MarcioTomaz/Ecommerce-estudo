@@ -29,6 +29,9 @@ import com.ec.ecommercev3.Service.helper.OrderCalculator;
 import com.ec.ecommercev3.Service.helper.StockValidator;
 import com.ec.ecommercev3.Service.messaging.NotificationKafkaProducer;
 import com.ec.ecommercev3.Service.messaging.OrderKafkaProducer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +109,7 @@ public class OrderService {
         newOrder.setActive(true);
         newOrder.setStatus(OrderStatus.WAITING_FOR_PAYMENT);
 
-        if(cart.getItems().isEmpty()) {
+        if (cart.getItems().isEmpty()) {
             throw new ResourceNotFoundException("Carrinho vazio!");
         }
 
@@ -243,7 +246,7 @@ public class OrderService {
         Order result = orderRepository.findById(orderId).orElseThrow(() ->
                 new ResourceNotFoundException("Pedido não encontrado!"));
 
-        if(!result.getPerson().getId().equals(userPerson.getId()) && !userPerson.getRole().equals(UserRole.ADMIN)) {
+        if (!result.getPerson().getId().equals(userPerson.getId()) && !userPerson.getRole().equals(UserRole.ADMIN)) {
             throw new AccessDeniedException("Você não tem permissão para acessar este pedido.");
         }
 
@@ -346,21 +349,64 @@ public class OrderService {
         Order orderToAccept = orderRepository.findById(admOrderManagementDTO.orderId())
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
 
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        //criar objectNode
+        ObjectNode notificationEventNode = mapper.createObjectNode();
+
+
         if (admOrderManagementDTO.isAccept().equals(true)) {
             orderToAccept.setStatus(OrderStatus.SHIPPED);
 
-            notificationKafkaProducer.sendNotification(
-                    new NotificationEvent(
-                            orderToAccept.getPerson().getId(),
-                            "Pedido aprovado e enviado!",
-                            "O pedido #" + orderToAccept.getId() + " Foi enviado!",
-                            false,
-                            NotificationType.ORDER_UPDATE,
-                            orderToAccept.getId(),
-                            ReferenceType.ORDER,
-                            Instant.now()
-                    )
-            );
+            //add campos
+            notificationEventNode.put("userId", userPerson.getId());
+            notificationEventNode.put("orderId", orderToAccept.getId());
+            notificationEventNode.put("title", "Pedido aprovado e enviado!");
+            notificationEventNode.put("message", "O pedido: " + orderToAccept.getId() + " Foi enviado!");
+            notificationEventNode.put("type", NotificationType.ORDER_UPDATE.toString());
+            notificationEventNode.put("referenceId", orderToAccept.getId());
+            notificationEventNode.put("referenceType", ReferenceType.ORDER.toString());
+            notificationEventNode.put("timeStamp", Instant.now().toString().formatted());
+            notificationEventNode.put("TesteCampoNovo", "Teste novo campo que nao tem no dto");
+
+            // Crie um ArrayNode para armazenar a lista de itens
+            ArrayNode itemsOrderArray = mapper.createArrayNode();
+
+            // Mapeie cada item do pedido para um ObjectNode
+            orderToAccept.getOrderItems().forEach(item -> {
+                ObjectNode itemNode = mapper.createObjectNode();
+                itemNode.put("Id_item", item.getId());
+                itemNode.put("Item_name", item.getProduct().getProduct_name());
+                itemNode.put("price_item", item.getProduct().getProduct_price());
+                itemNode.put("Quantity_item", item.getQuantity());
+                itemsOrderArray.add(itemNode); // Adicione o ObjectNode ao ArrayNode
+            });
+
+            // Adicione o ArrayNode completo ao ObjectNode principal
+            notificationEventNode.set("ItemsOrder", itemsOrderArray);
+
+            if (orderToAccept.getTotal() > 500) {
+                notificationEventNode.put("TotalCompra", "o total é maior que 500, total: " + orderToAccept.getTotal());
+            }
+
+            notificationEventNode.set("ItemsOrder", itemsOrderArray);
+
+
+            notificationKafkaProducer.sendNotification(notificationEventNode);
+
+//            notificationKafkaProducer.sendNotification(
+//                    new NotificationEvent(
+//                            orderToAccept.getPerson().getId(),
+//                            "Pedido aprovado e enviado!",
+//                            "O pedido #" + orderToAccept.getId() + " Foi enviado!",
+//                            false,
+//                            NotificationType.ORDER_UPDATE,
+//                            orderToAccept.getId(),
+//                            ReferenceType.ORDER,
+//                            Instant.now()
+//                    )
+//            );
 
         } else {
             orderToAccept.setStatus(OrderStatus.CANCELED);
@@ -370,18 +416,25 @@ public class OrderService {
                             REJECTION_REASON, orderToAccept,
                             userPerson));
 
-            notificationKafkaProducer.sendNotification(
-                    new NotificationEvent(
-                            orderToAccept.getPerson().getId(),
-                            "Pedido recusado! ",
-                            "O pedido #" + orderToAccept.getId() + " Foi cancelado! Motivo: " + admOrderManagementDTO.reason(),
-                            false,
-                            NotificationType.ORDER_UPDATE,
-                            orderToAccept.getId(),
-                            ReferenceType.ORDER,
-                            Instant.now()
-                    )
-            );
+            notificationEventNode.put("userId", userPerson.getId());
+            notificationEventNode.put("orderId", orderToAccept.getId());
+            notificationEventNode.put("title", "Pedido Rejeitado!");
+            notificationEventNode.put("message", "O pedido: " + orderToAccept.getId() + " Foi Rejeitado!");
+
+            notificationKafkaProducer.sendNotification(notificationEventNode);
+
+//            notificationKafkaProducer.sendNotification(
+//                    new NotificationEvent(
+//                            orderToAccept.getPerson().getId(),
+//                            "Pedido recusado! ",
+//                            "O pedido #" + orderToAccept.getId() + " Foi cancelado! Motivo: " + admOrderManagementDTO.reason(),
+//                            false,
+//                            NotificationType.ORDER_UPDATE,
+//                            orderToAccept.getId(),
+//                            ReferenceType.ORDER,
+//                            Instant.now()
+//                    )
+//            );
 
             restoreStockQuantity(orderToAccept);
         }
@@ -456,18 +509,18 @@ public class OrderService {
                         ExecutionType.AUTOMATIC
                 );
 
-                notificationKafkaProducer.sendNotification(
-                        new NotificationEvent(
-                                order.getPerson().getId(),
-                                "Pedido Expirado! ",
-                                "O pedido #" + order.getId() + " Foi Expirado! Motivo: Falta de pagamento",
-                                false,
-                                NotificationType.ORDER_UPDATE,
-                                order.getId(),
-                                ReferenceType.ORDER,
-                                Instant.now()
-                        )
-                );
+//                notificationKafkaProducer.sendNotification(
+//                        new NotificationEvent(
+//                                order.getPerson().getId(),
+//                                "Pedido Expirado! ",
+//                                "O pedido #" + order.getId() + " Foi Expirado! Motivo: Falta de pagamento",
+//                                false,
+//                                NotificationType.ORDER_UPDATE,
+//                                order.getId(),
+//                                ReferenceType.ORDER,
+//                                Instant.now()
+//                        )
+//                );
 
                 restoreStockQuantity(order);
             }

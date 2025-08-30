@@ -18,6 +18,8 @@ public class ProductInsertDTO extends DomainEntity {
     @NotBlank
     private String product_name;
 
+    private String imagePath;
+
     private String product_description;
 
     @NotNull
