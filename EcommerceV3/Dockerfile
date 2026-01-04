@@ -1,16 +1,16 @@
-FROM maven:3.8.5-openjdk-17 AS build
+FROM maven:3.9.9-eclipse-temurin-25 AS build
 
 WORKDIR /app
 
-COPY EcommerceV3/pom.xml .
+# Copia apenas o pom para resolver dependências em cache
+COPY pom.xml .
+RUN mvn -B -q -DskipTests dependency:go-offline
 
-RUN mvn dependency:go-offline -B
+# Copia o código e constrói o projeto
+COPY src ./src
+RUN mvn -B -q clean package -DskipTests
 
-COPY EcommerceV3 /app
-
-RUN mvn clean package -DskipTests
-
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:25-jre
 
 WORKDIR /app
 
@@ -18,4 +18,4 @@ COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -33,7 +33,7 @@ public class FileStorageService {
                 extension = originalFileName.substring(dotIndex); // ex: ".jpg"
             }
 
-            String fileName = UUID.randomUUID().toString() + extension;
+            String fileName = UUID.randomUUID() + extension;
 
             Path filePath = Paths.get(uploadDir, fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
