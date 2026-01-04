@@ -1,5 +1,6 @@
 package com.ec.ecommercev3.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,6 +17,7 @@ import java.util.List;
 public class Cart extends DomainEntity{
 
     @ManyToOne(optional = true)
+    @JsonIgnore
     @JoinColumn(name = "userPerson_id")
     private UserPerson userPerson;
 

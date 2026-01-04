@@ -33,7 +33,7 @@ public class AuthenticationController {
     private TokenService tokenService;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid AuthenticationDTO dto) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO dto) {
 
         var userNamePassword = new UsernamePasswordAuthenticationToken(dto.email(), dto.password());
         var auth = this.authenticationManager.authenticate(userNamePassword);
@@ -41,8 +41,6 @@ public class AuthenticationController {
         var token = tokenService.generateToken((UserPerson) auth.getPrincipal());
 
         return ResponseEntity.ok(new LoginResponseDTO(token, ((UserPerson) auth.getPrincipal()).getRole().getRole()));
-
-
     }
 
     @PostMapping("/register")

@@ -4,6 +4,7 @@ package com.ec.ecommercev3.Entity.Comment;
 import com.ec.ecommercev3.Entity.*;
 import com.ec.ecommercev3.Entity.Enums.CommentType;
 import com.ec.ecommercev3.Entity.Product.Product;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,10 +29,12 @@ public class Comment extends DomainEntity{
     private Product product;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "order_id", nullable = true) // Comentário vinculado a um pedido
     private Order order;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "admin_id") // Comentário feito por um administrador
     private UserPerson admin;
 
