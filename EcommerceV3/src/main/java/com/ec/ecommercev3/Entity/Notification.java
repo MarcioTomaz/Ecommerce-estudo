@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
-@Document(collection = "notification")
+@Document(collection = "notifications")
 @Table
 @Data
 @AllArgsConstructor

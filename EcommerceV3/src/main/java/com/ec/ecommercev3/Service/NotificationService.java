@@ -15,7 +15,16 @@ public class NotificationService {
 
     public Page<Notification> getNotificationsByUserId(Long userId, Pageable pageable) {
 
-        return notificationRepository.findByUserId(userId, pageable);
+        return notificationRepository.findByUserIdOrderByTimestampDesc(userId, pageable);
     }
 
+    public void readNotification(Notification notification) {
+
+        Notification result = notificationRepository.findById(notification.getId());
+
+        if(result != null){
+            result.setIsRead(true);
+            notificationRepository.save(result);
+        }
+    }
 }

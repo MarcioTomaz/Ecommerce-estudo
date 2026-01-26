@@ -333,7 +333,6 @@ public class OrderService {
         //criar objectNode
         ObjectNode notificationEventNode = mapper.createObjectNode();
 
-
         if (admOrderManagementDTO.isAccept().equals(true)) {
             orderToAccept.setStatus(OrderStatus.SHIPPED);
 
@@ -393,7 +392,7 @@ public class OrderService {
                             REJECTION_REASON, orderToAccept,
                             userPerson));
 
-            notificationEventNode.put("userId", userPerson.getId());
+            notificationEventNode.put("userId", orderToAccept.getPerson().getId());
             notificationEventNode.put("orderId", orderToAccept.getId());
             notificationEventNode.put("title", "Pedido Rejeitado!");
             notificationEventNode.put("message", "O pedido: " + orderToAccept.getId() + " Foi Rejeitado!");
