@@ -20,19 +20,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 public abstract class PaymentMethodDTO {
     public abstract PaymentType getType();
 
-
-    public static PaymentMethodDTO fromEntity(PaymentMethod paymentMethod) {
+    public static PaymentMethodDTO fromEntity2(PaymentMethod paymentMethod) {
         if (paymentMethod == null) {
             throw new IllegalArgumentException("O método de pagamento não pode ser nulo.");
         }
 
-        // Verificando o tipo do método de pagamento e convertendo para o DTO adequado
-        if (paymentMethod instanceof PixPayment) {
-            return new PixPaymentDTO((PixPayment) paymentMethod);
-        } else if (paymentMethod instanceof CreditCardPaymentMethod) {
-            return new CreditCardPaymentDTO((CreditCardPaymentMethod) paymentMethod);
-        }
-
-        throw new IllegalArgumentException("Tipo de pagamento desconhecido: " + paymentMethod.getClass().getSimpleName());
+        return switch (paymentMethod){
+            case PixPayment p -> new PixPaymentDTO(p);
+            case CreditCardPaymentMethod c -> new CreditCardPaymentDTO(c);
+            default -> throw new IllegalArgumentException("Tipo de pagamento desconhecido: " + paymentMethod.getClass().getSimpleName());
+        };
     }
 }

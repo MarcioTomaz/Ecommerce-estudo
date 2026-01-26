@@ -190,40 +190,21 @@ public class OrderService {
     }
 
     private PaymentMethod convertToEntityAndSave(PaymentMethodDTO paymentMethodDTO, PaymentDTO paymentDTO) {
-        PaymentMethod paymentMethod;
-
         Order order = orderRepository.findById(paymentDTO.id())
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado para o ID: " + paymentDTO.id()));
 
-        if (paymentMethodDTO instanceof PixPaymentDTO pixDTO) {
-            PixPayment pixPayment = new PixPayment();
-            pixPayment.setPixKey(pixDTO.getPixKey());
-            pixPayment.setPixKeyType(pixDTO.getPixKeyType());
-            pixPayment.setAmountPaid(pixDTO.getAmountPaid());
-            pixPayment.setTransactionId(pixDTO.getTransactionId());
-            pixPayment.setOrder(order); // Associa a ordem
-            paymentMethod = pixPayment;
+        PaymentMethod paymentMethod = switch (paymentMethodDTO) {
+            case PixPaymentDTO pixDTO -> new PixPayment(pixDTO);
+            case CreditCardPaymentDTO cardDTO -> {
+                Card paymentCard = cardRepository.findById(cardDTO.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Cartão não encontrado!"));
+                yield new CreditCardPaymentMethod(cardDTO, paymentCard);
+            }
+            default ->
+                    throw new IllegalArgumentException("Tipo de pagamento desconhecido: " + paymentMethodDTO.getType());
+        };
 
-        } else if (paymentMethodDTO instanceof CreditCardPaymentDTO cardDTO) {
-            CreditCardPaymentMethod creditCardPaymentMethod = new CreditCardPaymentMethod();
-
-            Card paymentCard = cardRepository.findById(cardDTO.getId()).orElseThrow(() -> new ResourceNotFoundException("Cartão não encontrado!"));
-
-            creditCardPaymentMethod.setCard(paymentCard);
-
-            creditCardPaymentMethod.setTransactionId(cardDTO.getTransactionId());
-
-            creditCardPaymentMethod.setAmountPaid(cardDTO.getAmountPaid());
-
-            creditCardPaymentMethod.setInstallments(cardDTO.getInstallments());
-            creditCardPaymentMethod.setOrder(order); // Associa a ordem
-
-            paymentMethod = creditCardPaymentMethod;
-
-        } else {
-            throw new IllegalArgumentException("Tipo de pagamento desconhecido: " + paymentMethodDTO.getType());
-        }
-
+        paymentMethod.setOrder(order);
         return paymentMethodRepository.save(paymentMethod);
     }
 
@@ -239,9 +220,6 @@ public class OrderService {
 
     @Transactional
     public OrderDTO findOrderById(UserPerson userPerson, Long orderId) {
-
-//        Order result = orderRepository.findById(orderId).orElseThrow(() ->
-//                new ResourceNotFoundException("Pedido não encontrado!"));
 
         Order result = orderRepository.findById(orderId).orElseThrow(() ->
                 new ResourceNotFoundException("Pedido não encontrado!"));
@@ -262,7 +240,7 @@ public class OrderService {
 
         List<PaymentMethodDTO> paymentMethods = paymentMethodRepository.findByOrderId(orderId)
                 .stream()
-                .map(PaymentMethodDTO::fromEntity) // Convertendo para o DTO correto
+                .map(PaymentMethodDTO::fromEntity2) // Convertendo para o DTO correto
                 .toList();
 
         List<CommentDTO> commentDTO = result.getComments().stream()
@@ -329,7 +307,7 @@ public class OrderService {
 
         List<PaymentMethodDTO> paymentMethods = paymentMethodRepository.findByOrderId(orderId)
                 .stream()
-                .map(PaymentMethodDTO::fromEntity) // Convertendo para o DTO correto
+                .map(PaymentMethodDTO::fromEntity2) // Convertendo para o DTO correto
                 .toList();
 
         // Retornar o DTO preenchido
@@ -360,7 +338,7 @@ public class OrderService {
             orderToAccept.setStatus(OrderStatus.SHIPPED);
 
             //add campos
-            notificationEventNode.put("userId", userPerson.getId());
+            notificationEventNode.put("userId", orderToAccept.getPerson().getId());
             notificationEventNode.put("orderId", orderToAccept.getId());
             notificationEventNode.put("title", "Pedido aprovado e enviado!");
             notificationEventNode.put("message", "O pedido: " + orderToAccept.getId() + " Foi enviado!");
@@ -368,7 +346,6 @@ public class OrderService {
             notificationEventNode.put("referenceId", orderToAccept.getId());
             notificationEventNode.put("referenceType", ReferenceType.ORDER.toString());
             notificationEventNode.put("timeStamp", Instant.now().toString().formatted());
-            notificationEventNode.put("TesteCampoNovo", "Teste novo campo que nao tem no dto");
 
             // Crie um ArrayNode para armazenar a lista de itens
             ArrayNode itemsOrderArray = mapper.createArrayNode();

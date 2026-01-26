@@ -17,10 +17,6 @@ import lombok.Setter;
 @DiscriminatorColumn(name = "payment_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class PaymentMethod extends DomainEntity {
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
-
     private Double amountPaid;
 
     private String transactionId;
