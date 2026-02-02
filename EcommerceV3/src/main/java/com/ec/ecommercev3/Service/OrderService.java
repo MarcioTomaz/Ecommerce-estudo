@@ -340,7 +340,8 @@ public class OrderService {
             notificationEventNode.put("userId", orderToAccept.getPerson().getId());
             notificationEventNode.put("orderId", orderToAccept.getId());
             notificationEventNode.put("title", "Pedido aprovado e enviado!");
-            notificationEventNode.put("message", "O pedido: " + orderToAccept.getId() + " Foi enviado!");
+            notificationEventNode.put("title", "OrderAccepted");
+            notificationEventNode.put("message", "YourOrder " + orderToAccept.getId() + " hasBeenShipped");
             notificationEventNode.put("type", NotificationType.ORDER_UPDATE.toString());
             notificationEventNode.put("referenceId", orderToAccept.getId());
             notificationEventNode.put("referenceType", ReferenceType.ORDER.toString());
@@ -362,27 +363,7 @@ public class OrderService {
             // Adicione o ArrayNode completo ao ObjectNode principal
             notificationEventNode.set("ItemsOrder", itemsOrderArray);
 
-            if (orderToAccept.getTotal() > 500) {
-                notificationEventNode.put("TotalCompra", "o total é maior que 500, total: " + orderToAccept.getTotal());
-            }
-
-            notificationEventNode.set("ItemsOrder", itemsOrderArray);
-
-
             notificationKafkaProducer.sendNotification(notificationEventNode);
-
-//            notificationKafkaProducer.sendNotification(
-//                    new NotificationEvent(
-//                            orderToAccept.getPerson().getId(),
-//                            "Pedido aprovado e enviado!",
-//                            "O pedido #" + orderToAccept.getId() + " Foi enviado!",
-//                            false,
-//                            NotificationType.ORDER_UPDATE,
-//                            orderToAccept.getId(),
-//                            ReferenceType.ORDER,
-//                            Instant.now()
-//                    )
-//            );
 
         } else {
             orderToAccept.setStatus(OrderStatus.CANCELED);
@@ -395,22 +376,10 @@ public class OrderService {
             notificationEventNode.put("userId", orderToAccept.getPerson().getId());
             notificationEventNode.put("orderId", orderToAccept.getId());
             notificationEventNode.put("title", "Pedido Rejeitado!");
+            notificationEventNode.put("title", "OrderRejected");
             notificationEventNode.put("message", "O pedido: " + orderToAccept.getId() + " Foi Rejeitado!");
 
             notificationKafkaProducer.sendNotification(notificationEventNode);
-
-//            notificationKafkaProducer.sendNotification(
-//                    new NotificationEvent(
-//                            orderToAccept.getPerson().getId(),
-//                            "Pedido recusado! ",
-//                            "O pedido #" + orderToAccept.getId() + " Foi cancelado! Motivo: " + admOrderManagementDTO.reason(),
-//                            false,
-//                            NotificationType.ORDER_UPDATE,
-//                            orderToAccept.getId(),
-//                            ReferenceType.ORDER,
-//                            Instant.now()
-//                    )
-//            );
 
             restoreStockQuantity(orderToAccept);
         }

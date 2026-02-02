@@ -21,11 +21,29 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                          AuthenticationException authException) throws IOException {
 
         HttpStatus status = HttpStatus.UNAUTHORIZED;
+        String message = "Não autorizado";
+
+        // Diferencia o tipo de erro baseado na exceção
+        if (authException.getMessage() != null) {
+            String exceptionMessage = authException.getMessage().toLowerCase();
+
+            if (exceptionMessage.contains("bad credentials") ||
+                    exceptionMessage.contains("email ou senha")) {
+                message = "Email ou senha incorretos";
+            } else if (exceptionMessage.contains("token") ||
+                    exceptionMessage.contains("jwt")) {
+                message = "Token inválido ou expirado";
+            } else if (exceptionMessage.contains("access denied")) {
+                message = "Acesso negado";
+            } else {
+                message = authException.getMessage();
+            }
+        }
 
         StandardError errorDetails = new StandardError();
         errorDetails.setStatus(status.value());
         errorDetails.setError("Unauthorized");
-        errorDetails.setMessage("Email ou senha incorretos");
+        errorDetails.setMessage(message);
         errorDetails.setPath(request.getRequestURI());
 
         response.setStatus(status.value());
