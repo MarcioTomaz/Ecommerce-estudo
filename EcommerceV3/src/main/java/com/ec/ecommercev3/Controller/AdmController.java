@@ -4,7 +4,6 @@ import com.ec.ecommercev3.DTO.Filters.OrderFilterDTO;
 import com.ec.ecommercev3.DTO.Order.AdmOrderManagementDTO;
 import com.ec.ecommercev3.DTO.Order.OrderAdmDTO;
 import com.ec.ecommercev3.DTO.Order.OrderListAdmDTO;
-import com.ec.ecommercev3.DTO.Order.OrderListDTO;
 import com.ec.ecommercev3.Entity.Enums.OrderStatus;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.OrderService;
@@ -41,7 +40,7 @@ public class AdmController {
                                                     @RequestParam(defaultValue = "10") int size,
                                                     @RequestParam(required = false)OrderStatus status) {
 
-        OrderAdmDTO result = orderService.findOrderByIdAdm(userPerson, orderId);
+        OrderAdmDTO result = orderService.findOrderByIdAdm(orderId);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

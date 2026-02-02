@@ -70,7 +70,7 @@ public class OrderController {
     @GetMapping("/details/summary/{orderId}")
     public ResponseEntity<OrderSumaryDTO> orderDetailsSummary(@AuthenticationPrincipal UserPerson userPerson, @PathVariable Long orderId) {
 
-        OrderSumaryDTO result = orderService.findOrderByIdSummary(userPerson, orderId);
+        OrderSumaryDTO result = orderService.findOrderByIdSummary(orderId);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

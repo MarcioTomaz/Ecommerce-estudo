@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@EnableScheduling
 @SpringBootApplication
+@EnableScheduling
 @EnableJpaRepositories(basePackages = "com.ec.ecommercev3.Repository.Jpa")
 @EnableMongoRepositories(basePackages = "com.ec.ecommercev3.Repository.mongo")
 public class EcommerceV3Application {

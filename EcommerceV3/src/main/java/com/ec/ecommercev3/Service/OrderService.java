@@ -3,7 +3,6 @@ package com.ec.ecommercev3.Service;
 import com.ec.ecommercev3.DTO.Address.AddressAdmDTO;
 import com.ec.ecommercev3.DTO.Comment.CommentDTO;
 import com.ec.ecommercev3.DTO.Filters.OrderFilterDTO;
-import com.ec.ecommercev3.DTO.Notification.NotificationEvent;
 import com.ec.ecommercev3.DTO.Order.*;
 import com.ec.ecommercev3.DTO.Payment.CreditCardPaymentDTO;
 import com.ec.ecommercev3.DTO.Payment.PaymentMethodDTO;
@@ -42,9 +41,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -141,7 +138,7 @@ public class OrderService {
     }
 
     @Transactional
-    public List<PaymentMethod> addPaymentOrder(PaymentDTO paymentDTO) {
+    public void addPaymentOrder(PaymentDTO paymentDTO) {
 
         // Processa a lista de PaymentMethodDTO dentro do PaymentDTO
         List<PaymentMethod> savedPayments = paymentDTO.paymentMethods().stream()
@@ -151,8 +148,6 @@ public class OrderService {
         checkPaymentBusinessRules(paymentDTO, savedPayments);
 
         updateOrderStatusToShipping(paymentDTO.id());
-
-        return savedPayments;
     }
 
     private void checkPaymentBusinessRules(PaymentDTO paymentDTO, List<PaymentMethod> savedPayments) {
@@ -261,7 +256,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderSumaryDTO findOrderByIdSummary(UserPerson userPerson, Long orderId) {
+    public OrderSumaryDTO findOrderByIdSummary(Long orderId) {
 
         Order result = orderRepository.findById(orderId).orElseThrow(() ->
                 new ResourceNotFoundException("Pedido não encontrado!"));
@@ -296,7 +291,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderAdmDTO findOrderByIdAdm(UserPerson userPerson, Long orderId) {
+    public OrderAdmDTO findOrderByIdAdm(Long orderId) {
 
         Order result = orderRepository.findById(orderId).orElseThrow(() ->
                 new ResourceNotFoundException("Pedido não encontrado!"));
@@ -425,53 +420,7 @@ public class OrderService {
         productRepository.saveAll(products);
     }
 
-    @Transactional
-    public void expireOrdersIfNeeded() {
-        Instant now = Instant.now();
 
-        List<Order> orders = orderRepository.findByStatus(OrderStatus.WAITING_FOR_PAYMENT);
-
-        orders.forEach(order -> {
-
-            Duration time = Duration.between(order.getCreationDate(), LocalDateTime.now());
-
-            if (time.toMinutes() >= 30) {
-                log.info("Expirando pedido {} após {} minutos", order.getId(), time.toMinutes());
-                order.setStatus(OrderStatus.EXPIRED);
-
-                order.getComments().add(
-                        new Comment("Pedido Expirado por falta de pagamento",
-                                REJECTION_REASON, order, null
-                        ));
-
-                orderRepository.save(order);
-                orderKafkaProducer.sendOrderStatus(
-                        order.getId(),
-                        OrderStatus.EXPIRED,
-                        "Expired due to payment not received in time",
-                        null,
-                        AlteredByType.SYSTEM,
-                        ExecutionType.AUTOMATIC
-                );
-
-//                notificationKafkaProducer.sendNotification(
-//                        new NotificationEvent(
-//                                order.getPerson().getId(),
-//                                "Pedido Expirado! ",
-//                                "O pedido #" + order.getId() + " Foi Expirado! Motivo: Falta de pagamento",
-//                                false,
-//                                NotificationType.ORDER_UPDATE,
-//                                order.getId(),
-//                                ReferenceType.ORDER,
-//                                Instant.now()
-//                        )
-//                );
-
-                restoreStockQuantity(order);
-            }
-
-        });
-    }
 
 
     private Address getActiveAddress(Long id, String errorMessage) {
