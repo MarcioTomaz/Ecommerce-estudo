@@ -17,7 +17,7 @@ public class ReturnProcessController {
     private ReturnProcessService returnProcessService;
 
     @PostMapping("/return")
-    public ResponseEntity<JsonNode> returnProcess(@RequestParam JsonNode returnProcessFields) {
+    public ResponseEntity<JsonNode> returnProcess(@RequestBody JsonNode returnProcessFields) {
 
         Object result = returnProcessService.returnProcess(returnProcessFields);
 

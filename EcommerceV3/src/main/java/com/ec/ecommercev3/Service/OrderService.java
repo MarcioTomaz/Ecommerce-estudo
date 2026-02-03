@@ -334,7 +334,6 @@ public class OrderService {
             //add campos
             notificationEventNode.put("userId", orderToAccept.getPerson().getId());
             notificationEventNode.put("orderId", orderToAccept.getId());
-            notificationEventNode.put("title", "Pedido aprovado e enviado!");
             notificationEventNode.put("title", "OrderAccepted");
             notificationEventNode.put("message", "YourOrder " + orderToAccept.getId() + " hasBeenShipped");
             notificationEventNode.put("type", NotificationType.ORDER_UPDATE.toString());
@@ -370,7 +369,6 @@ public class OrderService {
 
             notificationEventNode.put("userId", orderToAccept.getPerson().getId());
             notificationEventNode.put("orderId", orderToAccept.getId());
-            notificationEventNode.put("title", "Pedido Rejeitado!");
             notificationEventNode.put("title", "OrderRejected");
             notificationEventNode.put("message", "O pedido: " + orderToAccept.getId() + " Foi Rejeitado!");
 

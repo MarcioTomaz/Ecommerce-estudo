@@ -1,12 +1,18 @@
 package com.ec.ecommercev3.Service;
 
-import com.ec.ecommercev3.Entity.Enums.OrderStatus;
+import com.ec.ecommercev3.Entity.Enums.*;
 import com.ec.ecommercev3.Entity.Order;
 import com.ec.ecommercev3.Repository.Jpa.OrderRepository;
+import com.ec.ecommercev3.Service.messaging.NotificationKafkaProducer;
+import com.ec.ecommercev3.Service.messaging.OrderKafkaProducer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 
 @Slf4j
 @Service
@@ -18,13 +24,19 @@ public class ReturnProcessService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private OrderKafkaProducer orderKafkaProducer;
+    @Autowired
+    private NotificationKafkaProducer notificationKafkaProducer;
+
     public Object returnProcess(JsonNode returnProcessFields) {
 
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode notificationEventNode = mapper.createObjectNode();
 
-            JsonNode dados = returnProcessFields.path("order");
-            Long orderId = dados.path("orderId").asLong();
-            String justification = dados.path("justification").asText(null);
+            Long orderId = returnProcessFields.path("orderId").asLong();
+            String justification = returnProcessFields.path("justification").asText(null);
 
             Order order = orderRepository.findById(orderId).orElseThrow(
                     () -> new IllegalAccessException("Pedido não encontrado: " + orderId));
@@ -40,12 +52,34 @@ public class ReturnProcessService {
                 throw new IllegalArgumentException("Justificativa da devolução é obrigatória");
             }
 
+            // Colocar pedido em analise
+            order.setStatus(OrderStatus.UNDER_REVIEW);
+
+            orderKafkaProducer.sendOrderStatus(
+                    order.getId(),
+                    OrderStatus.UNDER_REVIEW,
+                    justification,
+                    null,
+                    AlteredByType.SYSTEM,
+                    ExecutionType.AUTOMATIC
+                    );
+
+            notificationEventNode.put("userId", order.getPerson().getId());
+            notificationEventNode.put("orderId", order.getId());
+            notificationEventNode.put("title", "OrderUnderReview");
+            notificationEventNode.put("message", "orderUnderReview");
+            notificationEventNode.put("type", NotificationType.ORDER_UPDATE.toString());
+            notificationEventNode.put("referenceId", order.getId());
+            notificationEventNode.put("referenceType", ReferenceType.ORDER.toString());
+            notificationEventNode.put("timeStamp", Instant.now().toString().formatted());
+
+            notificationKafkaProducer.sendNotification(notificationEventNode);
+
+            return orderRepository.save(order);
 
         }catch (Exception e){
             log.error("Erro no processo de devolução: {}", e.getMessage());
             throw new RuntimeException("Erro ao processar devolução", e);
         }
-        
-            return null;
     }
 }
