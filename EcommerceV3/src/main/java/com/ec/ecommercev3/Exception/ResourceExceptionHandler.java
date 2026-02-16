@@ -71,6 +71,17 @@ public class ResourceExceptionHandler {
         return ResponseEntity.status(status).body(err);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<StandardError> illegalStateException(IllegalStateException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        StandardError err = new StandardError();
+        err.setStatus(status.value());
+        err.setError("Illegal state");
+        err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
     @ExceptionHandler(CartAlreadyExistsException.class)
     public ResponseEntity<StandardError> cartAlreadyExistsException(CartAlreadyExistsException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.CONFLICT;

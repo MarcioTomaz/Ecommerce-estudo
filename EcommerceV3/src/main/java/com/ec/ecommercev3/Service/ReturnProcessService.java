@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.time.Instant;
 
@@ -31,7 +32,6 @@ public class ReturnProcessService {
 
     public Object returnProcess(JsonNode returnProcessFields) {
 
-        try {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode notificationEventNode = mapper.createObjectNode();
 
@@ -39,7 +39,7 @@ public class ReturnProcessService {
             String justification = returnProcessFields.path("justification").asText(null);
 
             Order order = orderRepository.findById(orderId).orElseThrow(
-                    () -> new IllegalAccessException("Pedido não encontrado: " + orderId));
+                    () -> new EntityNotFoundException("Pedido não encontrado: " + orderId));
 
             // Validar status (só devolve se entregue ou enviado)
             if (!(order.getStatus().equals(OrderStatus.SHIPPED) ||
@@ -76,10 +76,5 @@ public class ReturnProcessService {
             notificationKafkaProducer.sendNotification(notificationEventNode);
 
             return orderRepository.save(order);
-
-        }catch (Exception e){
-            log.error("Erro no processo de devolução: {}", e.getMessage());
-            throw new RuntimeException("Erro ao processar devolução", e);
-        }
     }
 }
