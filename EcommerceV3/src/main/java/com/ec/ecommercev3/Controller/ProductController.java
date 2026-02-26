@@ -5,17 +5,18 @@ import com.ec.ecommercev3.DTO.Product.*;
 import com.ec.ecommercev3.Entity.Product.Product;
 import com.ec.ecommercev3.Entity.UserPerson;
 import com.ec.ecommercev3.Service.ProductService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 
 @RestController
@@ -26,12 +27,6 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-//    @PostMapping("/create")
-//    public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductInsertDTO productInsertDTO) {
-//        Product result = productService.create(productInsertDTO);
-//
-//        return ResponseEntity.status(HttpStatus.CREATED).body(result);
-//    }
 
     @PostMapping("/create")
     public ResponseEntity<Product> createProduct(
@@ -67,6 +62,16 @@ public class ProductController {
         Product result = productService.update(productEditDTO, userPerson);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, String>> uploadProductImage(
+            @PathVariable Long id,
+            @RequestPart("file") MultipartFile file,
+            @AuthenticationPrincipal UserPerson userPerson
+    ) {
+        String imagePath = productService.updateImage(id, file, userPerson);
+        return ResponseEntity.ok(Map.of("image_path", imagePath));
     }
 
     @PutMapping("/update/stock/{idProdut}")

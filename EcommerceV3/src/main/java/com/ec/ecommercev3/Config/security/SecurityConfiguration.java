@@ -33,6 +33,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/files/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",

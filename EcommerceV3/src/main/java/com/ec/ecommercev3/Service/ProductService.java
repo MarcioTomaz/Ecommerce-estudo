@@ -66,7 +66,7 @@ public class ProductService {
 
             Product product = modelMapper.map(productInsertDTO, Product.class);
 
-            product.setImagePath(imagePath);
+            product.setImage_path(imagePath);
 
             productRepository.save(product);
 
@@ -137,6 +137,13 @@ public class ProductService {
                     String.valueOf(currentProduct.getProduct_price())));
         }
 
+        if (oldProductSnapshot.getImage_path() == null && currentProduct.getImage_path() != null
+                || oldProductSnapshot.getImage_path() != null && !oldProductSnapshot.getImage_path().equals(currentProduct.getImage_path())) {
+            fieldsChanged.add(new FieldChange("imagePath",
+                    String.valueOf(oldProductSnapshot.getImage_path()),
+                    String.valueOf(currentProduct.getImage_path())));
+        }
+
         if(!fieldsChanged.isEmpty()){
             ProductUpdateAuditDTO productUpdateAuditDTO = new ProductUpdateAuditDTO(currentProduct.getId(),
                     new UserAuditDTO(user.getId(), user.getPerson().getFirstName(), user.getEmail(), user.getRole().toString()),
@@ -192,7 +199,7 @@ public class ProductService {
         Page<Product> result = productRepository.findAll(spec, pageable);
 
         return result.map(r -> new ProductListDTO(r.getId(), r.getProduct_name(), r.getProduct_description(),
-                r.getProduct_price(), r.getImagePath(), r.getProductCategory(), r.getCurrency(), r.getStock(), r.getVersion()));
+                r.getProduct_price(), r.getImage_path(), r.getProductCategory(), r.getCurrency(), r.getStock(), r.getVersion()));
     }
 
     @Transactional
@@ -226,4 +233,37 @@ public class ProductService {
         }
     }
 
+    @Transactional
+    public String updateImage(Long id, MultipartFile file, UserPerson userPerson) {
+
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Arquivo de imagem inválido.");
+        }
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+
+        Product oldProduct = new Product(product);
+
+        String newImagePath = fileStorageService.saveFile(file);
+
+        product.setImage_path(newImagePath);
+        product.setVersion(product.getVersion() + 1);
+        product.setUpdatedDate(LocalDateTime.now());
+
+        Product updatedProduct = productRepository.save(product);
+
+        ProductHistory newVersionHistory = new ProductHistory();
+        modelMapper.map(updatedProduct, newVersionHistory);
+
+        newVersionHistory.setId(null);
+        newVersionHistory.setProduct(updatedProduct);
+        newVersionHistory.setVersion(updatedProduct.getVersion());
+
+        productHistoryRepository.save(newVersionHistory);
+
+        publishProductUpdateAudit(oldProduct, updatedProduct, userPerson);
+
+        return newImagePath;
+    }
 }
