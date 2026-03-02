@@ -37,6 +37,10 @@ public interface OrderRepository extends JpaRepository<Order, Long>,
 
 
     Page<Order> findAllByPerson(Person person, Specification<Order> spec, Pageable pageable);
+
+    @Query("select o.id from Order o where o.status = :status")
+    Page<Long> findIdsByStatus(@Param("status") OrderStatus status, Pageable pageable);
+
 }
 
 
