@@ -50,6 +50,7 @@ public class ProductController {
     @GetMapping("/read/{productId}")
     public ResponseEntity<Product> readProductById(@PathVariable Long productId) {
 
+        System.out.println(Thread.currentThread());
         Product result = productService.readById(productId);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);

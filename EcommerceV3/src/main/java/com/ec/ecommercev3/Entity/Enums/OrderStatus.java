@@ -11,7 +11,8 @@ public enum OrderStatus {
     SHIPPED("Enviado"),
     DELIVERED("Entregue"),
     CANCELED("Cancelado"),
-    EXPIRED("Expirado");
+    EXPIRED("Expirado"),
+    UNDER_REVIEW("Em Revisão");
 
     private final String description;
 
