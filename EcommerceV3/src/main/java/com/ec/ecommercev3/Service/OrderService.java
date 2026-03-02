@@ -36,10 +36,13 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -479,5 +482,13 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
     }
 
+
+    @org.springframework.transaction.annotation.Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public List<Long> findWaitingForPaymentOrderIds(int batchSize) {
+        var pageable = PageRequest.of(0, batchSize, Sort.by(Sort.Direction.ASC, "creationDate"));
+
+        System.out.println(Thread.currentThread());
+        return orderRepository.findIdsByStatus(OrderStatus.WAITING_FOR_PAYMENT, pageable).getContent();
+    }
 
 }
