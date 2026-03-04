@@ -58,16 +58,11 @@ public class ProductService {
     @Autowired
     private FileStorageService fileStorageService;
 
-    public Product create(ProductInsertDTO productInsertDTO, MultipartFile file) {
+    public Product create(ProductInsertDTO productInsertDTO) {
 
         try {
 
-            String imagePath = fileStorageService.saveFile(file);
-
             Product product = modelMapper.map(productInsertDTO, Product.class);
-
-            product.setImage_path(imagePath);
-
             productRepository.save(product);
 
             ProductHistory productHistory = new ProductHistory();

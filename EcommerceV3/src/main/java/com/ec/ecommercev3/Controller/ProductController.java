@@ -27,13 +27,11 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-
     @PostMapping("/create")
     public ResponseEntity<Product> createProduct(
-            @RequestPart("product") ProductInsertDTO productInsertDTO,
-            @RequestPart("file") MultipartFile file) {
+            @RequestBody ProductInsertDTO productInsertDTO) {
 
-        Product result = productService.create(productInsertDTO, file);
+        Product result = productService.create(productInsertDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }

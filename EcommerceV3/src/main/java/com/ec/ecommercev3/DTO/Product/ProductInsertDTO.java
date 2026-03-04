@@ -15,10 +15,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ProductInsertDTO extends DomainEntity {
 
+    private Long id;
+
     @NotBlank
     private String product_name;
-
-    private String imagePath;
 
     private String product_description;
 
