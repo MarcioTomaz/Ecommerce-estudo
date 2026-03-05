@@ -232,10 +232,8 @@ public class OrderService {
         }
 
         List<OrderItemsDTO> orderItemsDTO = result.getOrderItems().stream()
-                .map(item -> new OrderItemsDTO(item.getId(),
-                        new ProductEditDTO(item.getProductHistory()),
-                        item.getQuantity())).toList();
-
+                .map(this::toOrderItemsDTO)
+                .toList();
 
         PersonDTO personDTO = new PersonDTO(result.getPerson());
         AddressAdmDTO billingAddressDTO = new AddressAdmDTO(result.getBillingAddress());
@@ -243,14 +241,13 @@ public class OrderService {
 
         List<PaymentMethodDTO> paymentMethods = paymentMethodRepository.findByOrderId(orderId)
                 .stream()
-                .map(PaymentMethodDTO::fromEntity2) // Convertendo para o DTO correto
+                .map(PaymentMethodDTO::fromEntity2)
                 .toList();
 
         List<CommentDTO> commentDTO = result.getComments().stream()
                 .map(comment -> new CommentDTO(comment.getComment(), comment.getCommentType()))
                 .toList();
 
-        // Retornar o DTO preenchido
         return new OrderDTO(
                 personDTO,
                 billingAddressDTO,
@@ -489,6 +486,20 @@ public class OrderService {
 
         System.out.println(Thread.currentThread());
         return orderRepository.findIdsByStatus(OrderStatus.WAITING_FOR_PAYMENT, pageable).getContent();
+    }
+
+    private OrderItemsDTO toOrderItemsDTO(Item item) {
+        ProductEditDTO productDTO = new ProductEditDTO(item.getProductHistory());
+
+        if (productDTO.getImage_path() == null && item.getProduct() != null) {
+            productDTO.setImage_path(item.getProduct().getImage_path());
+        }
+
+        return new OrderItemsDTO(
+                item.getId(),
+                productDTO,
+                item.getQuantity()
+        );
     }
 
 }

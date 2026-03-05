@@ -24,6 +24,8 @@ public class  ProductEditDTO {
 
     private String product_description;
 
+    private String image_path;
+
     @NotNull
     private Double product_price;
 
@@ -39,6 +41,7 @@ public class  ProductEditDTO {
     public ProductEditDTO(ProductHistory product) {
         this.id = product.getId();
         this.product_name = product.getProduct_name();
+        this.image_path = product.getImage_path();
         this.product_description = product.getProduct_description();
         this.product_price = product.getProduct_price();
         this.productCategory = product.getProductCategory();

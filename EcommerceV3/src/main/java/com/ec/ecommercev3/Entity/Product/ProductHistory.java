@@ -26,7 +26,7 @@ public class ProductHistory extends DomainEntity {
 
     private String product_name;
 
-    private String imagePath;
+    private String image_path;
 
     private String product_description;
 
@@ -47,7 +47,7 @@ public class ProductHistory extends DomainEntity {
         this.product = product;
         this.version = product.getVersion();
         this.product_name = product.getProduct_name();
-        this.imagePath = product.getImage_path();
+        this.image_path = product.getImage_path();
         this.product_description = product.getProduct_description();
         this.product_price = product.getProduct_price();
         this.productCategory = product.getProductCategory();
